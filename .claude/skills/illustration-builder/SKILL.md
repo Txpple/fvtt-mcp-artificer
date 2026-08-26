@@ -79,6 +79,12 @@ Match the shelf, not just the subject — all campaign art should feel like one 
 - Reuse the style opener that produced the existing pieces (house baseline:
   `fantasy illustration, … ` for scenes, `fantasy character portrait of …, oil painting style` for
   people) so new art matches old.
+- **House portrait finish (owner-locked 2026-08-26, consistency pass):** the reference look is
+  the Morgash/Gren pair — `soft diffuse dusk light, low contrast, pale hazy muted palette, matte
+  powdery skin with no gloss or shine, gentle even lighting with no harsh highlights, matte oil
+  painting, visible painterly brushwork, soft faded storybook finish`. Words like "gleaming"
+  invite a glossy high-contrast studio sheen (the owner: "1960s TV cameo vibe") — describe armor
+  as `worn … with a soft dull sheen` instead. Same trap as neon: shine words compound.
 
 ## Step 3 — Craft the prompt (the cookbook)
 
