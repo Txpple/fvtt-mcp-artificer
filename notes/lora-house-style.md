@@ -42,9 +42,26 @@ Three prep steps, all necessary (see the artifacts they remove):
 3. **White-heavy vignettes** — 6 plates were figures floating on page white with no croppable
    margin. Moved to `excluded/`.
 
-Captions are `.txt` alongside each image, derived from WotC's descriptive filenames with
-class/subclass mapping (`phb-oath-of-vengeance` → `a paladin, oath of vengeance`). They describe
-**content** so the invariant — style — attaches to the trigger word `dnd24art`.
+Captions are `.txt` alongside each image. **All 133 were written by looking at the image** — a
+first filename-derived pass was scrapped because it under-described.
+
+The rule that matters: captions describe **content only** (species, figure count, gear, setting,
+action) and deliberately say nothing about lighting, mood, palette, or brushwork. Anything named in
+a caption is attributed to those words instead of to the trigger, so the style has to stay
+*undescribed* in order to land on `dnd24art`. Subject-intrinsic colour ("green robes", "a red
+dragon", "bone-white skin") is content and stays; image-level colour ("bathed in golden light") is
+style and is banned.
+
+Why the filename pass was not good enough: 114 of 133 captions were three-to-nine words naming only
+a class or concept, so every undescribed detail leaked into the trigger. `phb-oath-of-vengeance`
+was captioned "a paladin, oath of vengeance" for a plate that actually shows *a green dragonborn in
+dark red-gemmed plate with a spectral blue dragon rising behind* — all of which was being taught to
+`dnd24art`. Looking at the images also caught filenames that simply lie: `mm-ghouls` shows one
+ghoul, `dmg-npc-healer` shows a spellcaster over a stone slab and no patient, `hof-white-worm` is a
+winged dragon, and `phb-barbarian` / `mm-ogres` / `phb-eldritch-knight` are cropped too tightly to
+determine species.
+
+Final state: min 4 words, median 20, mean 19; zero sparse captions, zero style-word leaks.
 
 ## Environment
 
