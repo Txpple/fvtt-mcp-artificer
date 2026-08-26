@@ -102,6 +102,16 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   order ("bone-white orc with two lower tusks", "tiny white-bearded gnome in green-gold robes"),
   compose around ONE hero moment, and let the rest support. Finish the pick with
   `upscale-image` — the refine path stays off-limits for these (nonhuman faces).
+- **Reference identities duplicate and bleed** (scene mode, three-scene test 2026-08-26): FLUX.2
+  will paint a referenced face onto *more than one* body when figures are spread wide — a second
+  bone-white orc, a twin elf — and will lend a reference to a nearby NPC (Morgash's face landed on
+  a hobgoblin captain). Mitigations: give every party member exactly ONE unmistakable action
+  clause, describe enemies with contrasting features ("orange-red skin"), keep the cast tight, and
+  put the hero large and near the centre — small background figures hold identity poorly.
+- **Arm the scene for the RIGHT session**: a fight from session 1 predates the party's later magic
+  items. Check that session's own loot ledger before putting a weapon in anyone's hand (Morgash
+  carried a greatsword long before the Maul of Momentum; Thomas won First Light *in* the cave
+  fight, so he cannot be swinging it during that fight).
 - **"Tusk" is a trap word** — klein maps it by size adjective: "small/prominent lower tusks" →
   thin glossy pins; "large broad tusks" → walrus ivory erupting from the mouth corners; "teeth
   rising over the upper lip" → a bared-teeth snarl. What works for integrated orc tusks:
