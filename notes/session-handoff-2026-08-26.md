@@ -42,11 +42,14 @@ For the next context window. Everything below is committed; this note is the ori
 
 ## Open work, in priority order
 
-1. **Redo displacer + hobgoblin scenes** in the vignette/money style (24-step scene mode, tight
-   cast, three-pass review) — owner approved the direction via the Cadoc A/B.
-2. **Cadoc money render**: iterate tusks/maul grip through three passes, then present.
-3. **Deploy approved scene art** (Longshadow first) once the owner names destinations.
-4. **BACKLOG.md**: `edit-token` (nano-banana replacement — likely FLUX.2 ref conditioning or
+1. ~~Redo displacer + hobgoblin scenes~~ DONE 2026-08-26 (2nd window): vignette money renders
+   staged — `handout-displacer-alpha-593465674.png` (Thomas kills the alpha, First Light +
+   lantern) and `handout-hobgoblin-captain-1796044867.png` (Jetten finishes the captain).
+   Old wide-cast versions in staging are superseded; awaiting owner verdict + destinations.
+2. ~~Cadoc money render~~ DONE same window: `handout-cadoc-graveheart-1061274353.png` staged —
+   portrait-true tusks, real maul contact, anatomical crystal heart. Baseline `cadoc-money`
+   superseded. (Longshadow deployment item dropped per owner 2026-08-26.)
+3. **BACKLOG.md**: `edit-token` (nano-banana replacement — likely FLUX.2 ref conditioning or
    the flux2 image-edit path; spike needed), absorb `token-cutout` from molten5e, character
    LoRAs (the real fix for identity-at-distance), NVFP4 fast gear, Qwen-Image text props.
 
