@@ -103,14 +103,37 @@ Goal: the release gate itself, on real art.
 
 ---
 
-## Deferred (post-0.1)
+## Shipped after 0.1
 
-- **House-style LoRAs baked into presets** — needs a generated corpus to judge taste against;
-  premature before the loop exists (CLAUDE.md setup step 5).
+- **v0.2.0 — party scenes**: `draft-ref.json` + `referenceImages` on `generate-image` (FLUX.2
+  reference conditioning holds party identities in group scenes).
+- **v0.3.0 — the scene finisher**: `scene.json` + `mode: "scene"` (FLUX.2-dev fp8 + Turbo LoRA,
+  10 steps, references + upscale tail in one graph, ~30 s warm). klein drafts fumble multi-figure
+  anatomy; the 32B model fixes hands, weapons, and limb counts.
+- **`illustration-builder` skill** — the judgment layer (canon research gates, precedent study,
+  the prompt cookbook, staging-first delivery).
+
+## Backlog
+
+- **`edit-token` — AI tweaks to existing token art** (owner request 2026-08-26). Take a token
+  from the world's token library (or the campaign shelf) and apply a described edit — "swap the
+  sword for an axe", "dress them in a green cloak", "add a scar", "make the armor plate instead
+  of leather" — preserving the rest of the image and the alpha. Today the owner does this by
+  uploading tokens to Google's Nano Banana; this brings it in-house.
+  Likely shape: a new pinned workflow using FLUX.2-dev's **image-edit / Kontext-style** path
+  (reference-conditioned img2img at low denoise, or an inpaint mask when the edit is localized),
+  a `sourceImage` + `edit` instruction contract, and a re-matte pass through the existing
+  `token-cutout` skill to restore transparency. Open questions: whether FLUX.2-dev edit mode
+  preserves the untouched regions well enough without masking, and how to keep the token's
+  circular framing intact.
+- **House-style LoRAs baked into presets** — now unblocked: the party portraits and scenes are a
+  corpus to judge candidates against (CLAUDE.md setup step 5).
+- **Per-character LoRAs** — the strongest identity lock (~30 min/character to train on the 5090),
+  composable across scenes; the reference-latent path may prove sufficient first.
+- **NVFP4 FLUX.2-dev** (~18 GB, fits entirely in 32 GB VRAM) — Blackwell-only speed gear for fast
+  scene iteration if fp8's ~30 s/scene starts to chafe.
 - **SDXL fine-tune fallback** (painterly LoRAs FLUX doesn't cover) and **Qwen-Image** text-props —
   each is a new checkpoint download + workflow; add when a real table need arrives.
-- **`illustration-builder` skill** — the judgment layer (prompt craft, curation taste, house
-  style). Tools ship first; the skill grows once there's a loop to exercise.
 
 ## Risks & watch items
 
