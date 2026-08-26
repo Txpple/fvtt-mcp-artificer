@@ -9,7 +9,8 @@ its sister server, [`fvtt-mcp-molten5e`](https://github.com/Txpple/fvtt-mcp-molt
 (`upload-asset` → `set-actor-art` / `add-journal-image` / scene backgrounds).
 
 > 🚧 **Status: greenfield.** Name and scope agreed 2026-08-26; nothing built yet. This README
-> describes the design being built toward — see [`CLAUDE.md`](CLAUDE.md) for the binding spec.
+> describes the design being built toward — see [`CLAUDE.md`](CLAUDE.md) for the binding spec and
+> [`ROADMAP.md`](ROADMAP.md) for the path to v0.1.0.
 
 ## Why this shape
 
