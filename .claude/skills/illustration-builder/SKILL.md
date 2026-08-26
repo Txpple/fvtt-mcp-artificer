@@ -84,6 +84,9 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
 - **Tokens**: end with "waist-up, centered, plain dark background" for cutout-ready framing.
 - Expect **ghost signatures** in dev renders regardless of "no signature" — tolerate at table
   scale, or crop; don't burn batches fighting it.
+- **dev img2img humanizes nonhuman faces**: refine repeatedly erased an orc's tusks at both 0.7
+  and 0.55 denoise, even with tusks explicitly prompted. When a draft nails a canon feature that
+  refine keeps destroying, stop refining — send the draft through `upscale-image` as-is.
 
 ## Step 4 — Run the loop, curate ruthlessly
 
