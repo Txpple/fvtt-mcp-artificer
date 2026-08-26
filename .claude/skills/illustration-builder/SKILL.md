@@ -48,6 +48,11 @@ Pull the authoritative description before writing a word of prompt:
 - **Locations / events**: `search-journals` for the subject name; scene notes; quest journals.
 - **Campaign repo** (when working in it — e.g. `fvtt-campaign-greenrest`): `notes/`, `plot/`,
   `sessions/` often carry richer description than the world does.
+- **Scenes of played events are a hard gate (owner rule)**: illustrating something that happened
+  at the table means reading the session diary page AND the session transcript/gm-notes
+  (`sessions/<date>/`), and **looking at the battlemap it was fought on** (`screenshot-scene`, or
+  read the scene background) — terrain, layout, and the fight's actual beats come from there,
+  never from imagination. Who was present matters too (absent PCs don't appear).
 
 Extract the **paintable facts**: species, gender, age, build, clothing, signature props, mood,
 lighting, time of day, weather. These become the prompt's spine.
@@ -91,6 +96,14 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
 - **dev img2img humanizes nonhuman faces**: refine erased an orc's tusks at 0.7 and 0.55 denoise,
   and at 0.45 it mangled them into downward fangs. Nonhuman faces are klein-only end to end — when
   a draft nails the canon feature, send it through `upscale-image` as-is.
+- **Group scenes: anchor identities with reference latents** (proven 2026-08-26): klein accepts
+  FLUX.2 reference conditioning — chain `ReferenceLatent` nodes (portrait → downscale ~512 →
+  `VAEEncode` with the flux2 VAE → into the conditioning) using the canonical party portraits
+  from the campaign `art/` shelf. Findings: 4 identities hold at **6 steps** (4 steps merges
+  characters); bind each reference with an unmistakable prompt phrase ("bone-white orc with two
+  lower tusks", "tiny white-bearded gnome in green-gold robes"); compose around ONE hero moment
+  and let the rest support. Until a pinned `draft-ref.json` exists this runs as a hand-built
+  graph against the ComfyUI API directly.
 - **"Tusk" is a trap word** — klein maps it by size adjective: "small/prominent lower tusks" →
   thin glossy pins; "large broad tusks" → walrus ivory erupting from the mouth corners; "teeth
   rising over the upper lip" → a bared-teeth snarl. What works for integrated orc tusks:
