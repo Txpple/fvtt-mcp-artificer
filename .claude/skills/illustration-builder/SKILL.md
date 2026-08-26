@@ -84,7 +84,15 @@ Match the shelf, not just the subject — all campaign art should feel like one 
   powdery skin with no gloss or shine, gentle even lighting with no harsh highlights, matte oil
   painting, visible painterly brushwork, soft faded storybook finish`. Words like "gleaming"
   invite a glossy high-contrast studio sheen (the owner: "1960s TV cameo vibe") — describe armor
-  as `worn … with a soft dull sheen` instead. Same trap as neon: shine words compound.
+  as `worn … with a soft dull sheen` instead. Same trap as neon: shine words compound. Don't
+  overshoot into `pale hazy / faded` — that washes the image out; pair the matte-skin words with
+  `rich mid-tones and deep shadows` to keep Morgash/Gren-level tonal depth.
+- **Style anchoring with extra references (proven 2026-08-26):** for portraits, pass the two
+  approved style-anchor portraits (Morgash + Gren, the owner-designated reference pair) as refs
+  2–3 alongside the subject's identity ref. FLUX.2 absorbs their palette and brushwork WITHOUT
+  face bleed — provided the prompt pins the subject's species features (`clean-shaven human
+  features` kept tusks and beards off Thomas). Beats prompt-only style matching; the house-style
+  LoRA remains the durable version once the approved corpus exists.
 
 ## Step 3 — Craft the prompt (the cookbook)
 
