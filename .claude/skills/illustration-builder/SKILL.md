@@ -110,6 +110,11 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
 
 ## Step 4 — Run the loop, curate ruthlessly
 
+0. **Open the live gallery first** so the owner sees every batch without clicking anything:
+   `preview_start` with name `art-review` (defined in this repo's `.claude/launch.json`; serves
+   `scripts/art-review.mjs` on port 8787). The browser pane shows the newest renders
+   auto-refreshing — drafts appear as they land, click any image to zoom. Keep `SendUserFile`
+   for finals only.
 1. Cold start? `artificer-status` first; it names anything missing.
 2. `generate-image` **draft**: batch 6 for scenes/handouts, 4 for characters/tokens.
 3. **Read every PNG.** Judge against canon, not against "is it pretty": wrong gender, wrong
