@@ -51,15 +51,17 @@ structural edit the contract allows, covered by `workflows.test.ts`.
 | 6 | `noise_seed` | seed |
 | 12 | `filename_prefix` | per-job id |
 
-## scene.json — FLUX.2-dev fp8 + turbo LoRA with references + upscale tail (the scene finisher)
+## scene.json — FLUX.2-dev fp8 with references + upscale tail (the scene finisher)
 
-The quality tier for multi-character scenes (~30 s warm on the 5090; the 33 GB model streams its
-VRAM overflow from RAM). **Identical slot layout and pruning rules as draft-ref.json** (slots
-20–63, prune + guider rewire), plus: `LoraLoaderModelOnly` (`1b`) with the Flux.2 Turbo LoRA and
-**steps pinned at 10**, and the 4x-UltraSharp tail (nodes 70–72) so one call yields the finished
-output resolution. Extra substitution over draft-ref: node **72** `width`/`height` (preset output
-dims). Typical use: klein `draft-ref` to explore, then re-render the chosen direction here with
-the same references.
+The quality tier for referenced scenes (~80 s warm on the 5090; the 33 GB model streams its VRAM
+overflow from RAM). **Identical slot layout and pruning rules as draft-ref.json** (slots 20–63,
+prune + guider rewire), plus **steps pinned at 24 with no turbo LoRA** (owner call 2026-08-26 —
+the 10-step turbo pass visibly cost coherence) and the 4x-UltraSharp tail (nodes 70–72) so one
+call yields the finished output resolution. Extra substitution over draft-ref: node **72**
+`width`/`height` (preset output dims). Typical use: klein `draft-ref` to explore, then re-render
+the chosen direction here with the same references — and mind the composition rules in the
+illustration-builder skill (tight cast; the full-party group shot is the hardest case, not the
+default).
 
 ## final.json — dev fp8 txt2img + upscale tail, one graph
 

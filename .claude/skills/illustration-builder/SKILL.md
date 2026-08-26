@@ -102,6 +102,29 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   order ("bone-white orc with two lower tusks", "tiny white-bearded gnome in green-gold robes"),
   compose around ONE hero moment, and let the rest support. Finish the pick with
   `upscale-image` — the refine path stays off-limits for these (nonhuman faces).
+- **Translate canon into the model's vocabulary — never prompt in-world proper nouns or
+  mechanics** (owner rule 2026-08-26). The generator has never heard of First Light, the Maul of
+  Momentum, the Hollowing, or Spellfire; naming them either does nothing or makes it free-
+  associate garbage (a "rose-gold blazing" sword rendered as a pink lightsaber). Canon decides
+  WHAT is true; the prompt says only what a camera would see, in ordinary illustrator terms:
+  "First Light" → "a longsword catching warm dawn-colored light"; "spellfire" → "silver-white
+  fire"; "displacement" → "a ghostly after-image a step to one side". Keep effects modest —
+  over-described glow becomes neon. When a canon element has no standard-fantasy visual
+  equivalent, simplify it rather than explain it.
+- **Computational limits — compose inside them** (proven 2026-08-26, Cadoc A/B): the entity-count
+  ceiling is real. Past roughly six distinct subjects, FLUX.2 collapses into a posed cast lineup
+  facing the camera, duplicates faces, and floats weapons. The full-party group shot is the
+  HARDEST genre — a rare set-piece needing several seeds and ruthless curation, never the default.
+  Default to **duel/vignette compositions**: 1–2 party members + one enemy + one landmark, one
+  directional action, hero large and central. Across a session's art, give each PC their moment in
+  separate images rather than cramming four into one frame. Money renders use scene mode's pinned
+  **24 steps, no turbo** (~80 s) — the 10-step turbo pass visibly costs coherence.
+- **Three-pass self-review is mandatory before showing scene/final art** (owner rule 2026-08-26):
+  generate → Read → critique against canon, anatomy, and composition (weapons and hands
+  especially — Morgash's maul grip is a repeat offender) → fix the prompt or re-seed → repeat, at
+  least THREE passes, iterating on seeds and tweaks. Show the owner only the best surviving
+  render, with a one-line note of what was rejected on the way. Draft batches for curation are
+  exempt; anything presented as a finished scene is not.
 - **Reference identities duplicate and bleed** (scene mode, three-scene test 2026-08-26): FLUX.2
   will paint a referenced face onto *more than one* body when figures are spread wide — a second
   bone-white orc, a twin elf — and will lend a reference to a nearby NPC (Morgash's face landed on

@@ -13,7 +13,6 @@ const REQUIRED_MODELS: Record<string, string[]> = {
   checkpoints: ['flux1-dev-fp8.safetensors'],
   diffusion_models: ['flux-2-klein-4b.safetensors', 'flux2_dev_fp8mixed.safetensors'],
   text_encoders: ['qwen_3_4b.safetensors', 'mistral_3_small_flux2_fp8.safetensors'],
-  loras: ['Flux_2-Turbo-LoRA_comfyui.safetensors'],
   vae: ['flux2-vae.safetensors'],
   upscale_models: ['4x-UltraSharp.safetensors'],
 };

@@ -136,8 +136,8 @@ describe('buildScene', () => {
     expect(g['50']).toBeUndefined();
     expect(g['60']).toBeUndefined();
     expect(g['72'].inputs).toMatchObject({ width: 2560, height: 1600 });
-    expect(g['8'].inputs.steps).toBe(10);
-    expect(g['1b'].class_type).toBe('LoraLoaderModelOnly');
+    expect(g['8'].inputs.steps).toBe(24);
+    expect(g['1b']).toBeUndefined(); // no turbo lora on the money tier (owner, 2026-08-26)
   });
 });
 
