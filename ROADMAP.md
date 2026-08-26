@@ -15,9 +15,9 @@ Everything below serves that gate. LoRA house style, SDXL fallback, and Qwen tex
 
 Goal: headless ComfyUI generating with both FLUX models on the 5090.
 
-- Install the **ComfyUI standalone Windows build** on the drive the owner picks; verify the
-  embedded torch is a **CUDA 12.8+ build** (Blackwell / `sm_120` kernels — first-run smoke test,
-  not assumption).
+- Install the **ComfyUI standalone Windows build** into `D:\Workbench\LOCAL\LocalAI` (locked
+  2026-08-26); verify the embedded torch is a **CUDA 12.8+ build** (Blackwell / `sm_120` kernels —
+  first-run smoke test, not assumption).
 - Launch convention: headless API mode, `--listen 127.0.0.1`, pinned port, `--disable-auto-launch`,
   `--output-directory` pointed at a known artificer output root (simplifies file handoff — the MCP
   server reads outputs straight off disk, no `/view` fetches).
@@ -29,9 +29,9 @@ Goal: headless ComfyUI generating with both FLUX models on the 5090.
   | FLUX.2-klein checkpoint + its text encoder | Comfy-Org repackage — **verify current files/sizes at download time** | ~5–10 GB | draft batches |
   | `4x-UltraSharp.pth` | upscale-model hub | ~67 MB | model upscale |
 
-  Start with the **fp8 all-in-one dev** (one file, `CheckpointLoaderSimple`, fast on Blackwell);
-  the bf16 split-file upgrade path stays open if quality demands it. v0.1 total ≈ **25–30 GB**,
-  well under the 60–100 GB budget.
+  **fp8 all-in-one dev is locked** (2026-08-26): one file, `CheckpointLoaderSimple`, hardware fp8
+  speed on Blackwell; the bf16 split-file upgrade path stays open if an M1 A/B ever shows a visible
+  difference. v0.1 total ≈ **25–30 GB**, well under the 60–100 GB budget.
 - Exit gate: one klein image and one dev image rendered headless via the HTTP API; timings and
   VRAM headroom recorded in the repo notes.
 
@@ -70,9 +70,9 @@ Goal: the tools, built to the family bar.
   | `upscale-image` | path in → finished preset-resolution PNG out |
   | `artificer-status` | ComfyUI reachable, models present, VRAM/queue state — cold-start diagnosability |
 
-- **Output conventions** locked with the owner so generate → curate → upload needs no glue:
-  proposal `art/<kind>-<slug>-<seed>.png` (kebab-case, kind-prefixed — matches the campaign repo's
-  existing `maps/map-greenrest-01.jpg` style).
+- **Output convention locked** (2026-08-26): `art/<kind>-<slug>-<seed>.png` (kebab-case,
+  kind-prefixed — matches the campaign repo's existing `maps/map-greenrest-01.jpg` style), so
+  generate → curate → upload needs no glue.
 - Tests: offline unit suite (substitution correctness, preset dimensions, filename conventions,
   registry surface guard); live ComfyUI suite gated like molten5e's integration tests.
 - Exit gate: build green, tests green, `.mcp.json.example` committed, registered at **user scope**
