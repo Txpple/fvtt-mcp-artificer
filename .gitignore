@@ -1,0 +1,26 @@
+# Local Claude Code settings (machine-specific; never commit)
+.claude/*
+!.claude/skills/
+
+# Local MCP wiring (machine-specific; the tracked template is .mcp.json.example)
+.mcp.json
+
+# Dependencies
+node_modules/
+
+# Environment Files
+.env
+.env.local
+
+# Build Output
+dist/
+*.tsbuildinfo
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

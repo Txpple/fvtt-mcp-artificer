@@ -1,0 +1,57 @@
+// The tool registry — the single place tool names, definitions, and handlers are wired together
+// (pattern inherited from fvtt-mcp-molten5e). The `handlers` map is the source of truth; the
+// advertised `tools` list is DERIVED from it, so the two cannot drift, and a handler without a
+// matching definition fails fast at startup.
+
+import { Comfy } from './comfy.js';
+import { GenerateImageTool } from './tools/generate.js';
+import { StatusTool } from './tools/status.js';
+import { UpscaleImageTool } from './tools/upscale.js';
+
+export interface ToolRegistry {
+  tools: Array<{ name: string; description: string; inputSchema: Record<string, unknown> }>;
+  handlers: Record<string, (args: unknown) => Promise<unknown>>;
+  dispatch(name: string, args: unknown): Promise<unknown>;
+}
+
+export interface ToolRegistryDeps {
+  comfy: Comfy;
+  workflowsDir: string;
+}
+
+export function buildToolRegistry(deps: ToolRegistryDeps): ToolRegistry {
+  const generate = new GenerateImageTool(deps);
+  const upscale = new UpscaleImageTool(deps);
+  const status = new StatusTool(deps);
+
+  const handlers: ToolRegistry['handlers'] = {
+    'generate-image': args => generate.handleGenerateImage(args),
+    'upscale-image': args => upscale.handleUpscaleImage(args),
+    'artificer-status': args => status.handleStatus(args),
+  };
+
+  const definitions = [
+    ...generate.getToolDefinitions(),
+    ...upscale.getToolDefinitions(),
+    ...status.getToolDefinitions(),
+  ];
+
+  const tools = Object.keys(handlers).map(name => {
+    const def = definitions.find(d => d.name === name);
+    if (!def) throw new Error(`handler ${name} has no advertised tool definition`);
+    return def;
+  });
+  for (const def of definitions) {
+    if (!(def.name in handlers)) throw new Error(`definition ${def.name} has no handler`);
+  }
+
+  return {
+    tools,
+    handlers,
+    dispatch(name, args) {
+      const handler = handlers[name];
+      if (!handler) return Promise.reject(new Error(`Unknown tool: ${name}`));
+      return handler(args);
+    },
+  };
+}

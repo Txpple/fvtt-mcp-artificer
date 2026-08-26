@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+
+// The MCP server entry point: a single stdio process serving the registry's three tools. All
+// ComfyUI traffic goes through the `Comfy` seam (src/comfy.ts) — plain HTTP to the local headless
+// instance, connected lazily on the first tool call; tools/list answers without touching it.
+
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+
+import { Comfy } from './comfy.js';
+import { config } from './config.js';
+import { buildToolRegistry } from './registry.js';
+
+async function main(): Promise<void> {
+  const comfy = new Comfy({
+    url: config.comfyUrl,
+    outputDir: config.outputDir,
+    timeoutMs: config.timeoutMs,
+  });
+
+  const { tools, dispatch } = buildToolRegistry({ comfy, workflowsDir: config.workflowsDir });
+
+  const mcp = new Server(
+    { name: config.server.name, version: config.server.version },
+    { capabilities: { tools: {} } }
+  );
+
+  mcp.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
+
+  mcp.setRequestHandler(CallToolRequestSchema, async request => {
+    const { name, arguments: args } = request.params;
+    try {
+      const result = await dispatch(name, args ?? {});
+      return {
+        content: [
+          { type: 'text', text: typeof result === 'string' ? result : JSON.stringify(result) },
+        ],
+      };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`[artificer] tool ${name} failed: ${message}`);
+      return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+    }
+  });
+
+  const shutdown = (): void => process.exit(0);
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+  process.stdin.on('end', shutdown);
+
+  // stdout is the JSON-RPC channel; diagnostics go to stderr only.
+  process.on('unhandledRejection', (reason: unknown) => {
+    console.error('[artificer] unhandled rejection:', reason);
+  });
+
+  const transport = new StdioServerTransport();
+  await mcp.connect(transport);
+  console.error(`[artificer] MCP server v${config.server.version} connected over stdio`);
+}
+
+main().catch(err => {
+  console.error('fvtt-mcp-artificer failed to start:', err);
+  process.exit(1);
+});
