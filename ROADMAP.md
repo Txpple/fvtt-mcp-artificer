@@ -1,5 +1,10 @@
 # Roadmap — v0.1.0, "prove the loop"
 
+> **Status: SHIPPED 2026-08-26.** All five milestones landed same-day (M0 → M4); the release gate
+> ran end to end in [`notes/m3-loop-proof.md`](notes/m3-loop-proof.md) and `v0.1.0` is tagged.
+> This document stays as the record of what was decided and why. Post-0.1 candidates live under
+> [Deferred](#deferred-post-01).
+
 The initial release is done when the full loop from [`CLAUDE.md`](CLAUDE.md) runs end to end on
 real table art:
 
