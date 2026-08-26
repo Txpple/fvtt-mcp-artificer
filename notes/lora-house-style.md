@@ -70,7 +70,36 @@ class/subclass mapping (`phb-oath-of-vengeance` → `a paladin, oath of vengeanc
   relaunch with `scripts/launch-comfyui.ps1`.
 - Desktop cost with the single 4K monitor on the 5090 is only ~1 GB, leaving ~30.4 GB.
 
-## Benchmark + overnight results
+## Benchmark results (2026-08-26, RTX 5090, rank 32, batch 1, 1024/768/512 buckets)
 
-TBD — benching bf16 (`quantize: false`) against fp8 (`quantize: true`) at rank 32 to pick the
-overnight configuration. Owner preference: **train longer and better, not faster.**
+| | bf16 (`quantize: false`) | fp8 (`quantize: true`) |
+| --- | --- | --- |
+| Peak VRAM | 32,024 MiB / 32,607 (98%) | **23,108 MiB (71%)** |
+| Step time | 10.5–12.2 s/it | **1.65–2.21 s/it** |
+| 4,000 steps | ~12 h | **~2.4 h** |
+
+**fp8 wins outright.** bf16 did not OOM, but only because Windows paged the overflow to system
+RAM — the same thrash that rules out FLUX.2, just milder; that paging *is* the 5× slowdown.
+
+Decisive extra argument: **inference is already fp8** (`final`/`refine` load
+`flux1-dev-fp8.safetensors`). Training bf16 and deploying fp8 would be a train/inference precision
+mismatch. fp8 training matches deployment, so it is the more correct choice here, not a compromise.
+
+"Longer and better" therefore gets spent on **more steps and variant comparison** rather than on
+precision — a well-tuned fp8 LoRA beats one blind mistuned bf16 run.
+
+## Overnight plan (~8 h, sequential, `run-overnight.sh`)
+
+| Run | Steps | LR | Rank |
+| --- | --- | --- | --- |
+| A | 4000 | 1e-4 | 32 |
+| B | 5000 | 5e-5 | 32 |
+| C | 4000 | 1e-4 | 64 |
+
+Checkpoints every 500 steps are kept, so step-count comparison is free — no variant needed for it;
+the runs vary only what checkpoints cannot give us (LR and rank). Each run also samples 5 images
+every 500 steps using real campaign subjects (Morgash's tusks, Gren's silver-white spellfire, the
+autumn temple, a firelit hobgoblin cave, Thomas's sunburst shield), so curation in the morning is
+visual — same as every other judgement call in this pipeline.
+
+**Stop ComfyUI before launching** and leave it down for the duration.
