@@ -88,9 +88,14 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
 - **Tokens**: end with "waist-up, centered, plain dark background" for cutout-ready framing.
 - Expect **ghost signatures** in dev renders regardless of "no signature" — tolerate at table
   scale, or crop; don't burn batches fighting it.
-- **dev img2img humanizes nonhuman faces**: refine repeatedly erased an orc's tusks at both 0.7
-  and 0.55 denoise, even with tusks explicitly prompted. When a draft nails a canon feature that
-  refine keeps destroying, stop refining — send the draft through `upscale-image` as-is.
+- **dev img2img humanizes nonhuman faces**: refine erased an orc's tusks at 0.7 and 0.55 denoise,
+  and at 0.45 it mangled them into downward fangs. Nonhuman faces are klein-only end to end — when
+  a draft nails the canon feature, send it through `upscale-image` as-is.
+- **"Tusk" is a trap word** — klein maps it by size adjective: "small/prominent lower tusks" →
+  thin glossy pins; "large broad tusks" → walrus ivory erupting from the mouth corners; "teeth
+  rising over the upper lip" → a bared-teeth snarl. What works for integrated orc tusks:
+  "mouth closed with lips together, two thick heavy lower tusks with a dull matte ivory finish
+  protruding gently from behind his closed lower lip".
 
 ## Step 4 — Run the loop, curate ruthlessly
 
