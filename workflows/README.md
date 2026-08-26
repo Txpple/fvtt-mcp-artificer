@@ -1,9 +1,9 @@
 # Pinned workflows — the substitution contract
 
-These five JSONs are the **only** graphs the MCP server ever submits (API format, `POST /prompt`
+These six JSONs are the **only** graphs the MCP server ever submits (API format, `POST /prompt`
 with `{"prompt": <graph>}`). The server substitutes values into the node inputs listed below —
 addressed **by node id** — and never edits the graph structure, with ONE documented exception:
-`draft-ref.json`'s unused reference slots are pruned (see below). Nodes carrying substitutions are
+the reference workflows' unused reference slots are pruned (see draft-ref below). Nodes carrying substitutions are
 marked with a `SUB:` `_meta.title` in the files. Committed defaults double as the proof inputs:
 every file here has been submitted verbatim and rendered successfully (see
 [`notes/m1-workflows.md`](../notes/m1-workflows.md)).
@@ -50,6 +50,16 @@ structural edit the contract allows, covered by `workflows.test.ts`.
 | 8 | `width`, `height` | must match node 5 (steps stay 6) |
 | 6 | `noise_seed` | seed |
 | 12 | `filename_prefix` | per-job id |
+
+## scene.json — FLUX.2-dev fp8 + turbo LoRA with references + upscale tail (the scene finisher)
+
+The quality tier for multi-character scenes (~30 s warm on the 5090; the 33 GB model streams its
+VRAM overflow from RAM). **Identical slot layout and pruning rules as draft-ref.json** (slots
+20–63, prune + guider rewire), plus: `LoraLoaderModelOnly` (`1b`) with the Flux.2 Turbo LoRA and
+**steps pinned at 10**, and the 4x-UltraSharp tail (nodes 70–72) so one call yields the finished
+output resolution. Extra substitution over draft-ref: node **72** `width`/`height` (preset output
+dims). Typical use: klein `draft-ref` to explore, then re-render the chosen direction here with
+the same references.
 
 ## final.json — dev fp8 txt2img + upscale tail, one graph
 

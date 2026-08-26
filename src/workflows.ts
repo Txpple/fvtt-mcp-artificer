@@ -13,7 +13,7 @@ export interface GraphNode {
 }
 export type Graph = Record<string, GraphNode>;
 
-export type WorkflowName = 'draft' | 'draft-ref' | 'final' | 'final-refine' | 'upscale';
+export type WorkflowName = 'draft' | 'draft-ref' | 'scene' | 'final' | 'final-refine' | 'upscale';
 
 export function loadWorkflow(dir: string, name: WorkflowName): Graph {
   const file = path.join(dir, `${name}.json`);
@@ -79,14 +79,36 @@ const REF_SLOTS: Array<{ load: string; scale: string; encode: string; ref: strin
 
 /**
  * workflows/draft-ref.json — klein with FLUX.2 reference conditioning (6-step, proven 2026-08-26).
- * The ONE builder allowed a structural operation: unused reference slots are PRUNED (deleted) and
+ * The builders' one allowed structural operation: unused reference slots are PRUNED (deleted) and
  * BasicGuider's conditioning is rewired to the last used slot's ReferenceLatent — deterministic,
  * covered by tests, and documented in workflows/README.md.
  */
 export function buildDraftRef(pinned: Graph, p: DraftRefParams): Graph {
+  return applyRefGraph(pinned, p);
+}
+
+export interface SceneParams extends DraftRefParams {
+  outWidth: number;
+  outHeight: number;
+}
+
+/**
+ * workflows/scene.json — FLUX.2-dev fp8 + turbo lora with reference conditioning and the upscale
+ * tail, one graph (~30 s warm on the 5090). Same slot layout and pruning rules as draft-ref.
+ */
+export function buildScene(pinned: Graph, p: SceneParams): Graph {
+  const g = applyRefGraph(pinned, p);
+  const scale = node(g, '72', 'ImageScale');
+  scale.inputs.width = p.outWidth;
+  scale.inputs.height = p.outHeight;
+  return g;
+}
+
+/** Shared body of buildDraftRef/buildScene: substitutions + reference-slot fill and pruning. */
+function applyRefGraph(pinned: Graph, p: DraftRefParams): Graph {
   const n = p.uploadedReferences.length;
   if (n < 1 || n > REF_SLOTS.length) {
-    throw new Error(`draft-ref needs 1-${REF_SLOTS.length} reference images, got ${n}`);
+    throw new Error(`reference workflows need 1-${REF_SLOTS.length} reference images, got ${n}`);
   }
   const g = structuredClone(pinned);
   node(g, '4', 'CLIPTextEncode').inputs.text = p.prompt;

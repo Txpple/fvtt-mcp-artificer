@@ -11,6 +11,7 @@ import {
   buildDraftRef,
   buildFinal,
   buildFinalRefine,
+  buildScene,
   loadWorkflow,
   type Graph,
 } from '../workflows.js';
@@ -25,15 +26,23 @@ const generateImageSchema = z.object({
     .min(1)
     .describe('Short kebab-case subject name used in output filenames, e.g. "smugglers-cove".'),
   mode: z
-    .enum(['draft', 'final', 'refine'])
+    .enum(['draft', 'scene', 'final', 'refine'])
     .default('draft')
     .describe(
-      'draft: fast klein batch for curation. final: dev-quality render from the prompt alone, ' +
-        'finished at output resolution. refine: dev img2img over sourceImage (a picked draft) — ' +
-        'keeps its scene skeleton, re-renders in dev style, finished at output resolution.'
+      'draft: fast klein batch for curation. scene: FLUX.2-dev with referenceImages (required) — ' +
+        'the quality tier for multi-character scenes, ~30 s/image, finished at output ' +
+        'resolution. final: FLUX.1-dev render from the prompt alone, finished at output ' +
+        'resolution. refine: FLUX.1-dev img2img over sourceImage (a picked draft) — keeps its ' +
+        'scene skeleton; never use on nonhuman faces.'
     ),
   seed: z.number().int().min(0).optional().describe('Fixed seed; random when omitted.'),
-  batch: z.number().int().min(1).max(8).default(6).describe('Draft mode only: images per batch.'),
+  batch: z
+    .number()
+    .int()
+    .min(1)
+    .max(8)
+    .optional()
+    .describe('Images per batch (draft/scene modes). Defaults: draft 6, scene 1.'),
   sourceImage: z
     .string()
     .optional()
@@ -44,10 +53,10 @@ const generateImageSchema = z.object({
     .max(5)
     .optional()
     .describe(
-      'Draft mode only: 1-5 absolute paths of identity-reference images (e.g. the canonical ' +
-        'party portraits) fed as FLUX.2 reference conditioning so the named characters keep ' +
-        'their faces in group scenes. Bind each reference with an unmistakable phrase in the ' +
-        'prompt, in the same order.'
+      'Draft/scene modes (required for scene): 1-5 absolute paths of identity-reference images ' +
+        '(e.g. the canonical party portraits) fed as FLUX.2 reference conditioning so the named ' +
+        'characters keep their faces in group scenes. Bind each reference with an unmistakable ' +
+        'phrase in the prompt, in the same order.'
     ),
   denoise: z
     .number()
@@ -87,31 +96,43 @@ export class GenerateImageTool {
     const seed = p.seed ?? randomInt(0, 2 ** 31 - 1);
     const prefix = filenamePrefix(p.kind, p.slug, seed);
 
-    if (p.referenceImages && p.mode !== 'draft') {
-      throw new Error('referenceImages is draft-mode only (finish the pick via upscale-image)');
+    if (p.referenceImages && p.mode !== 'draft' && p.mode !== 'scene') {
+      throw new Error('referenceImages works in draft and scene modes only');
     }
+    if (p.mode === 'scene' && !p.referenceImages) {
+      throw new Error('scene mode requires referenceImages (the canonical party portraits)');
+    }
+    const batch = p.batch ?? (p.mode === 'scene' ? 1 : 6);
 
     let graph: Graph;
-    if (p.mode === 'draft' && p.referenceImages) {
+    if (p.mode === 'scene' || (p.mode === 'draft' && p.referenceImages)) {
       const uploadedReferences: string[] = [];
-      for (const ref of p.referenceImages) {
+      for (const ref of p.referenceImages ?? []) {
         uploadedReferences.push(await this.deps.comfy.upload(ref));
       }
-      graph = buildDraftRef(loadWorkflow(this.deps.workflowsDir, 'draft-ref'), {
+      const refParams = {
         prompt: p.prompt,
         width: preset.gen.width,
         height: preset.gen.height,
-        batchSize: p.batch,
+        batchSize: batch,
         seed,
         filenamePrefix: prefix,
         uploadedReferences,
-      });
+      };
+      graph =
+        p.mode === 'scene'
+          ? buildScene(loadWorkflow(this.deps.workflowsDir, 'scene'), {
+              ...refParams,
+              outWidth: preset.out.width,
+              outHeight: preset.out.height,
+            })
+          : buildDraftRef(loadWorkflow(this.deps.workflowsDir, 'draft-ref'), refParams);
     } else if (p.mode === 'draft') {
       graph = buildDraft(loadWorkflow(this.deps.workflowsDir, 'draft'), {
         prompt: p.prompt,
         width: preset.gen.width,
         height: preset.gen.height,
-        batchSize: p.batch,
+        batchSize: batch,
         seed,
         filenamePrefix: prefix,
       });

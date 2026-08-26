@@ -19,7 +19,7 @@ describe('live ComfyUI loop', () => {
     const status = (await registry.dispatch('artificer-status', {})) as any;
     expect(status.comfy.reachable).toBe(true);
     expect(status.comfy.missingModels).toEqual([]);
-    expect(Object.values(status.workflows)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok']);
+    expect(Object.values(status.workflows)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok', 'ok']);
   });
 
   it('generates a 1-image token draft and finishes it through the upscale tail', async () => {

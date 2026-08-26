@@ -9,6 +9,7 @@ import {
   buildDraftRef,
   buildFinal,
   buildFinalRefine,
+  buildScene,
   buildUpscale,
   loadWorkflow,
 } from './workflows.js';
@@ -113,6 +114,30 @@ describe('buildDraftRef', () => {
         uploadedReferences: ['1', '2', '3', '4', '5', '6'],
       })
     ).toThrow(/1-5/);
+  });
+});
+
+describe('buildScene', () => {
+  it('shares the reference-slot contract and substitutes output dims into the upscale tail', () => {
+    const g = buildScene(loadWorkflow(workflowsDir, 'scene'), {
+      prompt: 'battle',
+      width: 1536,
+      height: 960,
+      batchSize: 1,
+      seed: 9,
+      filenamePrefix: 'handout-battle-9',
+      uploadedReferences: ['a.png', 'b.png', 'c.png'],
+      outWidth: 2560,
+      outHeight: 1600,
+    });
+    expect(g['20'].inputs.image).toBe('a.png');
+    expect(g['40'].inputs.image).toBe('c.png');
+    expect(g['9'].inputs.conditioning).toEqual(['43', 0]);
+    expect(g['50']).toBeUndefined();
+    expect(g['60']).toBeUndefined();
+    expect(g['72'].inputs).toMatchObject({ width: 2560, height: 1600 });
+    expect(g['8'].inputs.steps).toBe(10);
+    expect(g['1b'].class_type).toBe('LoraLoaderModelOnly');
   });
 });
 
