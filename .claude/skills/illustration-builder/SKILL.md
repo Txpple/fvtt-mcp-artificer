@@ -65,8 +65,12 @@ Match the shelf, not just the subject — all campaign art should feel like one 
   the `<kind>-<slug>-<seed>` convention tells you what exists and for whom.
 - `download-asset` (or read the campaign repo copies) of the 2–3 pieces closest in subject, and
   **look at them**: palette, rendering style (painterly? ink-lined?), framing, lighting mood.
-- For actor art, `get-actor` shows the current portrait/token — study it before replacing it, and
-  keep continuity unless the user wants a redesign.
+- For actor art this is a **hard gate, not a suggestion**: when the actor has existing art
+  (`hasImage`), get the actual file (`export-actor` → `img` / `prototypeToken.texture.src` →
+  `download-asset`) and **Read it** before writing the prompt. Backstories rarely state
+  appearance facts the art settles — skin tone, hairstyle, armor colors. Learned the hard way:
+  a canon Morgash has bone-white skin his backstory never mentions; the first portrait shipped
+  green. Keep continuity with the existing art unless the user asks for a redesign.
 - Reuse the style opener that produced the existing pieces (house baseline:
   `fantasy illustration, … ` for scenes, `fantasy character portrait of …, oil painting style` for
   people) so new art matches old.
@@ -102,12 +106,17 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
    `upscale-image` when a draft wins outright as-is.
 6. Show the user the final (send the file) before or as it lands in the world.
 
-## Step 5 — Deliver and wire
+## Step 5 — Stage locally; Foundry only after approval
 
-- `upload-asset` → `worlds/<world>/assets/art/<kind>-<slug>-<seed>.png` (strip ComfyUI's
-  `_00001_` suffix on the remote name; keep the seed — it's the provenance).
-- Wire it: `set-actor-art` (portrait), `add-journal-image` (handout — `playerVisible: true` only
-  when it's genuinely for players), `update-scene` / `create-scene` (background). Tokens go
-  through **token-cutout** for alpha before `set-actor-art`'s token half.
+**Nothing goes to Foundry uncurated by the owner.** Finals land in the campaign repo's staging
+area first:
+
+- Copy the finished PNG to `<campaign repo>\art\staging\<kind>-<slug>-<seed>.png` (strip
+  ComfyUI's `_00001_` suffix; keep the seed — it's the provenance). For Greenrest:
+  `D:\Workbench\FVTT\Repos\fvtt-campaign-greenrest\art\staging\`.
+- Show the user the file and **stop there by default**. Uploading to the live world
+  (`upload-asset`) and wiring (`set-actor-art`, `add-journal-image`, `update-scene`) happen only
+  when the owner approves — then the file also graduates from `art\staging\` to `art\`.
+- Tokens go through **token-cutout** for alpha before `set-actor-art`'s token half.
 - If canon details were invented in Step 1, offer to write them back into the actor bio/journal so
   the art and the text agree forever after.
