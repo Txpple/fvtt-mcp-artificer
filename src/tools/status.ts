@@ -17,7 +17,7 @@ const REQUIRED_MODELS: Record<string, string[]> = {
   upscale_models: ['4x-UltraSharp.safetensors'],
 };
 
-const WORKFLOWS: WorkflowName[] = ['draft', 'final', 'final-refine', 'upscale'];
+const WORKFLOWS: WorkflowName[] = ['draft', 'draft-ref', 'final', 'final-refine', 'upscale'];
 
 export interface StatusDeps {
   comfy: Comfy;

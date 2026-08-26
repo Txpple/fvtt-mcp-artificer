@@ -19,7 +19,7 @@ describe('live ComfyUI loop', () => {
     const status = (await registry.dispatch('artificer-status', {})) as any;
     expect(status.comfy.reachable).toBe(true);
     expect(status.comfy.missingModels).toEqual([]);
-    expect(Object.values(status.workflows)).toEqual(['ok', 'ok', 'ok', 'ok']);
+    expect(Object.values(status.workflows)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok']);
   });
 
   it('generates a 1-image token draft and finishes it through the upscale tail', async () => {
@@ -42,5 +42,30 @@ describe('live ComfyUI loop', () => {
     })) as any;
     expect(upscaled.files).toHaveLength(1);
     expect(fs.existsSync(upscaled.files[0])).toBe(true);
+  });
+
+  it('generates a reference-conditioned draft from its own prior output', async () => {
+    const base = (await registry.dispatch('generate-image', {
+      kind: 'portrait',
+      prompt: 'fantasy character portrait of a goblin scout, oil painting style',
+      slug: 'it-ref-base',
+      mode: 'draft',
+      batch: 1,
+      seed: 777,
+    })) as any;
+
+    const ref = (await registry.dispatch('generate-image', {
+      kind: 'handout',
+      prompt:
+        'fantasy illustration, a goblin scout crouched on a mossy boulder in a misty forest, ' +
+        'oil painting style',
+      slug: 'it-ref-scene',
+      mode: 'draft',
+      batch: 1,
+      seed: 778,
+      referenceImages: [base.files[0]],
+    })) as any;
+    expect(ref.files).toHaveLength(1);
+    expect(fs.existsSync(ref.files[0])).toBe(true);
   });
 });

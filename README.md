@@ -62,7 +62,7 @@ downsample to the finished size, all in one pinned graph.
 
 | tool | what it does |
 | --- | --- |
-| `generate-image` | `kind` + `prompt` + `slug`, with `mode`: **draft** (klein batch for curation), **final** (dev render from the prompt, finished at output resolution), or **refine** (dev img2img at denoise 0.7 over a picked draft — keeps its scene skeleton, re-renders in dev style, finished at output resolution). Returns absolute PNG paths named `<kind>-<slug>-<seed>_NNNNN_.png`. |
+| `generate-image` | `kind` + `prompt` + `slug`, with `mode`: **draft** (klein batch for curation), **final** (dev render from the prompt, finished at output resolution), or **refine** (dev img2img at denoise 0.7 over a picked draft — keeps its scene skeleton, re-renders in dev style, finished at output resolution). Draft mode also takes `referenceImages` (1–5 paths, e.g. canonical party portraits) fed as FLUX.2 reference conditioning so named characters keep their faces in group scenes. Returns absolute PNG paths named `<kind>-<slug>-<seed>_NNNNN_.png`. |
 | `upscale-image` | Finish an existing image (usually a draft that won curation outright) through the upscale tail to its kind's output resolution. |
 | `artificer-status` | Health check: ComfyUI reachability/version, VRAM, queue depth, pinned-workflow integrity, required-model presence. |
 

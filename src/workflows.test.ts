@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   buildDraft,
+  buildDraftRef,
   buildFinal,
   buildFinalRefine,
   buildUpscale,
@@ -60,6 +61,58 @@ describe('buildDraft', () => {
         filenamePrefix: 'x',
       })
     ).toThrow(/pinned workflow drift: node 8/);
+  });
+});
+
+describe('buildDraftRef', () => {
+  const params = {
+    prompt: 'battle',
+    width: 1536,
+    height: 960,
+    batchSize: 4,
+    seed: 7,
+    filenamePrefix: 'handout-battle-7',
+  };
+
+  it('fills all five slots and points the guider at the last ReferenceLatent', () => {
+    const g = buildDraftRef(loadWorkflow(workflowsDir, 'draft-ref'), {
+      ...params,
+      uploadedReferences: ['a.png', 'b.png', 'c.png', 'd.png', 'e.png'],
+    });
+    expect(g['20'].inputs.image).toBe('a.png');
+    expect(g['60'].inputs.image).toBe('e.png');
+    expect(g['9'].inputs.conditioning).toEqual(['63', 0]);
+    expect(g['8'].inputs.steps).toBe(6);
+  });
+
+  it('prunes unused slots and rewires the guider to the last used slot', () => {
+    const g = buildDraftRef(loadWorkflow(workflowsDir, 'draft-ref'), {
+      ...params,
+      uploadedReferences: ['a.png', 'b.png'],
+    });
+    expect(g['20'].inputs.image).toBe('a.png');
+    expect(g['30'].inputs.image).toBe('b.png');
+    expect(g['9'].inputs.conditioning).toEqual(['33', 0]);
+    for (const id of ['40', '41', '42', '43', '50', '51', '52', '53', '60', '61', '62', '63']) {
+      expect(g[id]).toBeUndefined();
+    }
+    // no dangling links: every referenced node id still exists
+    for (const n of Object.values(g)) {
+      for (const v of Object.values(n.inputs)) {
+        if (Array.isArray(v) && typeof v[0] === 'string') expect(g[v[0]]).toBeDefined();
+      }
+    }
+  });
+
+  it('rejects zero or more than five references', () => {
+    const pinned = loadWorkflow(workflowsDir, 'draft-ref');
+    expect(() => buildDraftRef(pinned, { ...params, uploadedReferences: [] })).toThrow(/1-5/);
+    expect(() =>
+      buildDraftRef(pinned, {
+        ...params,
+        uploadedReferences: ['1', '2', '3', '4', '5', '6'],
+      })
+    ).toThrow(/1-5/);
   });
 });
 

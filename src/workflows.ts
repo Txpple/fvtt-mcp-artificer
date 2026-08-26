@@ -13,7 +13,7 @@ export interface GraphNode {
 }
 export type Graph = Record<string, GraphNode>;
 
-export type WorkflowName = 'draft' | 'final' | 'final-refine' | 'upscale';
+export type WorkflowName = 'draft' | 'draft-ref' | 'final' | 'final-refine' | 'upscale';
 
 export function loadWorkflow(dir: string, name: WorkflowName): Graph {
   const file = path.join(dir, `${name}.json`);
@@ -60,6 +60,58 @@ export function buildDraft(pinned: Graph, p: DraftParams): Graph {
   sched.inputs.width = p.width;
   sched.inputs.height = p.height;
   node(g, '12', 'SaveImage').inputs.filename_prefix = p.filenamePrefix;
+  return g;
+}
+
+export interface DraftRefParams extends DraftParams {
+  /** ComfyUI-side input names from /upload/image, in binding order. 1–5 entries. */
+  uploadedReferences: string[];
+}
+
+/** The five reference slots in workflows/draft-ref.json: [LoadImage, ReferenceLatent] node ids. */
+const REF_SLOTS: Array<{ load: string; scale: string; encode: string; ref: string }> = [
+  { load: '20', scale: '21', encode: '22', ref: '23' },
+  { load: '30', scale: '31', encode: '32', ref: '33' },
+  { load: '40', scale: '41', encode: '42', ref: '43' },
+  { load: '50', scale: '51', encode: '52', ref: '53' },
+  { load: '60', scale: '61', encode: '62', ref: '63' },
+];
+
+/**
+ * workflows/draft-ref.json — klein with FLUX.2 reference conditioning (6-step, proven 2026-08-26).
+ * The ONE builder allowed a structural operation: unused reference slots are PRUNED (deleted) and
+ * BasicGuider's conditioning is rewired to the last used slot's ReferenceLatent — deterministic,
+ * covered by tests, and documented in workflows/README.md.
+ */
+export function buildDraftRef(pinned: Graph, p: DraftRefParams): Graph {
+  const n = p.uploadedReferences.length;
+  if (n < 1 || n > REF_SLOTS.length) {
+    throw new Error(`draft-ref needs 1-${REF_SLOTS.length} reference images, got ${n}`);
+  }
+  const g = structuredClone(pinned);
+  node(g, '4', 'CLIPTextEncode').inputs.text = p.prompt;
+  const latent = node(g, '5', 'EmptyFlux2LatentImage');
+  latent.inputs.width = p.width;
+  latent.inputs.height = p.height;
+  latent.inputs.batch_size = p.batchSize;
+  node(g, '6', 'RandomNoise').inputs.noise_seed = p.seed;
+  const sched = node(g, '8', 'Flux2Scheduler');
+  sched.inputs.width = p.width;
+  sched.inputs.height = p.height;
+  node(g, '12', 'SaveImage').inputs.filename_prefix = p.filenamePrefix;
+
+  REF_SLOTS.forEach((slot, i) => {
+    if (i < n) {
+      node(g, slot.load, 'LoadImage').inputs.image = p.uploadedReferences[i];
+    } else {
+      node(g, slot.load, 'LoadImage');
+      delete g[slot.load];
+      delete g[slot.scale];
+      delete g[slot.encode];
+      delete g[slot.ref];
+    }
+  });
+  node(g, '9', 'BasicGuider').inputs.conditioning = [REF_SLOTS[n - 1].ref, 0];
   return g;
 }
 

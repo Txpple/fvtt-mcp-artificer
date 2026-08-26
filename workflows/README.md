@@ -1,8 +1,9 @@
 # Pinned workflows — the substitution contract
 
-These four JSONs are the **only** graphs the MCP server ever submits (API format, `POST /prompt`
+These five JSONs are the **only** graphs the MCP server ever submits (API format, `POST /prompt`
 with `{"prompt": <graph>}`). The server substitutes values into the node inputs listed below —
-addressed **by node id** — and never edits the graph structure. Nodes carrying substitutions are
+addressed **by node id** — and never edits the graph structure, with ONE documented exception:
+`draft-ref.json`'s unused reference slots are pruned (see below). Nodes carrying substitutions are
 marked with a `SUB:` `_meta.title` in the files. Committed defaults double as the proof inputs:
 every file here has been submitted verbatim and rendered successfully (see
 [`notes/m1-workflows.md`](../notes/m1-workflows.md)).
@@ -27,6 +28,28 @@ always generate → 4x-UltraSharp (×4) → lanczos downsample, per the locked r
 | 8 | `width`, `height` | **must match node 5** (scheduler shifts sigmas by resolution) |
 | 6 | `noise_seed` | seed |
 | 12 | `filename_prefix` | per-job id — how the server finds its outputs |
+
+## draft-ref.json — klein with FLUX.2 reference conditioning (party scenes)
+
+Same as draft.json plus up to **five identity-reference slots** (nodes 20–23, 30–33, 40–43,
+50–53, 60–63: LoadImage → downscale 512×640 → VAEEncode → `ReferenceLatent`, chained into the
+conditioning). Proven 2026-08-26: with the canonical party portraits as references, four
+identities hold in one scene. **Steps are pinned at 6** — 4 steps merges characters.
+
+Upload each reference first (`POST /upload/image`) and substitute the returned names into the
+slot `LoadImage` nodes **in binding order** (the prompt should describe each referenced character
+with an unmistakable phrase, same order). The builder **prunes unused slots** — deleting their
+four nodes and rewiring node 9's conditioning to the last used slot's `ReferenceLatent` — the one
+structural edit the contract allows, covered by `workflows.test.ts`.
+
+| node | field | meaning |
+| --- | --- | --- |
+| 4 | `text` | prompt (with per-reference binding phrases) |
+| 20/30/40/50/60 | `image` | uploaded reference names, in binding order |
+| 5 | `width`, `height`, `batch_size` | preset gen dims |
+| 8 | `width`, `height` | must match node 5 (steps stay 6) |
+| 6 | `noise_seed` | seed |
+| 12 | `filename_prefix` | per-job id |
 
 ## final.json — dev fp8 txt2img + upscale tail, one graph
 

@@ -8,6 +8,7 @@ import { KINDS, PRESETS, filenamePrefix } from '../presets.js';
 import { toInputSchema } from '../utils/schema.js';
 import {
   buildDraft,
+  buildDraftRef,
   buildFinal,
   buildFinalRefine,
   loadWorkflow,
@@ -37,6 +38,17 @@ const generateImageSchema = z.object({
     .string()
     .optional()
     .describe('Refine mode only (required there): absolute path of the picked draft PNG.'),
+  referenceImages: z
+    .array(z.string())
+    .min(1)
+    .max(5)
+    .optional()
+    .describe(
+      'Draft mode only: 1-5 absolute paths of identity-reference images (e.g. the canonical ' +
+        'party portraits) fed as FLUX.2 reference conditioning so the named characters keep ' +
+        'their faces in group scenes. Bind each reference with an unmistakable phrase in the ' +
+        'prompt, in the same order.'
+    ),
   denoise: z
     .number()
     .min(0.3)
@@ -75,8 +87,26 @@ export class GenerateImageTool {
     const seed = p.seed ?? randomInt(0, 2 ** 31 - 1);
     const prefix = filenamePrefix(p.kind, p.slug, seed);
 
+    if (p.referenceImages && p.mode !== 'draft') {
+      throw new Error('referenceImages is draft-mode only (finish the pick via upscale-image)');
+    }
+
     let graph: Graph;
-    if (p.mode === 'draft') {
+    if (p.mode === 'draft' && p.referenceImages) {
+      const uploadedReferences: string[] = [];
+      for (const ref of p.referenceImages) {
+        uploadedReferences.push(await this.deps.comfy.upload(ref));
+      }
+      graph = buildDraftRef(loadWorkflow(this.deps.workflowsDir, 'draft-ref'), {
+        prompt: p.prompt,
+        width: preset.gen.width,
+        height: preset.gen.height,
+        batchSize: p.batch,
+        seed,
+        filenamePrefix: prefix,
+        uploadedReferences,
+      });
+    } else if (p.mode === 'draft') {
       graph = buildDraft(loadWorkflow(this.deps.workflowsDir, 'draft'), {
         prompt: p.prompt,
         width: preset.gen.width,
