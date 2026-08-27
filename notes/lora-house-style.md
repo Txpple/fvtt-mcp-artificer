@@ -190,6 +190,34 @@ with captions for reference). Rejection criteria, all three learned the hard way
 Then re-prep (crop to art interior, do **not** composite margins onto white) and re-caption.
 One retrain is only ~2.4 h now that everything is installed.
 
+## Run C findings (lr 1e-4, **rank 16**, 4000 steps — 2h20m, 8 ckpts @ 164 MB) — BEST OF THE THREE
+
+Swapping C from rank 64 to rank 16 paid off, and in the direction predicted: **less capacity means
+less memorisation of artifacts.**
+
+Versus A and B at comparable depth:
+- skin noticeably **paler** (closer to the prompted bone-white, though still not there)
+- tusks **smaller and integrated**, not walrus ivory
+- **no visible watermark** on the samples checked
+- paladin finally rendered a real architectural background and a proper rayed sunburst shield
+  instead of a flat gold disc on a blur
+
+Still unfixed: the **parchment field + page border** on portrait prompts. That artifact survives
+every hyperparameter change, which fits — it is present in a large share of the plates, so even a
+low-rank LoRA learns it. It is a data problem and only a data fix will remove it.
+
+### Overnight ranking
+
+| Run | Rank | LR | Verdict |
+| --- | --- | --- | --- |
+| **C** | 16 | 1e-4 | **best** — fewest artifacts, best prompt adherence |
+| A | 32 | 1e-4 | watermarks, walrus tusks, tan skin, worst paladin |
+| B | 32 | 5e-5 | null result — identical to A despite half the LR |
+
+Two implications: **rank is the lever that matters here, not learning rate**, and going lower still
+(rank 8) is worth testing on the rebuilt corpus. Total wall clock 7h38m for all three
+(A 2h21m, B 2h57m, C 2h20m), all at ~2 s/it, no OOM or crash.
+
 ### Note on sample prompts — my error, not the model's
 
 The five sample prompts omitted gender, violating the cookbook's own first rule ("say the identity
