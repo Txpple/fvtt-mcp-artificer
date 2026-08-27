@@ -120,3 +120,40 @@ autumn temple, a firelit hobgoblin cave, Thomas's sunburst shield), so curation 
 visual — same as every other judgement call in this pipeline.
 
 **Stop ComfyUI before launching** and leave it down for the duration.
+
+Run C was swapped mid-night from rank 64 to **rank 16** on the evidence below (leak is the failure
+mode, so less capacity is the informative experiment, not more). Its config *filename* still says
+`r64` — deliberate: the runner is a live bash process that reads itself as it executes, so only the
+file contents were changed. Output folder reads `dnd24art-C-lr1e4-r16`.
+
+## Run A findings (lr 1e-4, rank 32, 4000 steps — 2h21m, 8 ckpts @ 327 MB, 45 samples)
+
+The style transferred: crisp confident linework, saturated colour, worn metal with real surface
+damage — recognisably the 2024 sourcebook look rather than generic FLUX.
+
+Three defects, all pointing the same way (**the LoRA applies too strongly**):
+
+1. **Parchment leak.** Prompts that do NOT name a background collapse to a flat page-coloured field,
+   sometimes with a border edge, and a signature artifact at ~1000 steps. Cause: compositing the 69
+   transparent-margin plates onto **white** during prep. Cropping tighter, or onto neutral grey,
+   would have been better — fix this at the data level before any retrain.
+   **Not fatal:** prompts that DO name a setting render full environments (the ruined-temple and
+   misty-forest samples both did). The house portrait spec always names a background, so this is
+   mostly self-mitigating.
+2. **Overrides prompt content** — ignored "bone-white skin" (came out tan) and produced upward
+   walrus tusks (the cookbook's known "tusk is a trap word" failure).
+3. **Cartooning on faces** (owner's read), and one sample looked "like a bad meshy AI model".
+
+**Do not judge faces from the sample grid.** Samples are 20-step, guidance 4, 1024px previews with
+no upscale — a preview setting that punishes faces specifically while flattering landscapes. Also,
+"elderly wizard casting magic" is an enormous base-model attractor, so FLUX's own prior may be what
+shows through there rather than the LoRA.
+
+**Morning evaluation must be done through the real pipeline**, not the previews: render the
+candidate through `final` mode at full steps + the upscale tail, at several LoRA strengths, and put
+it beside the already-approved staged portraits. Three dials to search, not one: **which run ×
+which checkpoint depth × what LoRA strength** (strength is continuous at inference — an
+over-cartooning LoRA at 1.0 is often correct at 0.6–0.7, so a "too strong" checkpoint is not
+disqualified).
+
+It is fine for this to lose. Reference anchoring (Morgash + Gren as refs 2–3) already works.

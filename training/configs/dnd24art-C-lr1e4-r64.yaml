@@ -1,7 +1,7 @@
 ---
 job: extension
 config:
-  name: "dnd24art-C-lr1e4-r64"
+  name: "dnd24art-C-lr1e4-r16"
   process:
     - type: 'sd_trainer'
       training_folder: "output"
@@ -10,8 +10,8 @@ config:
       trigger_word: "dnd24art"
       network:
         type: "lora"
-        linear: 64
-        linear_alpha: 64
+        linear: 16
+        linear_alpha: 16
       save:
         dtype: float16
         save_every: 500
