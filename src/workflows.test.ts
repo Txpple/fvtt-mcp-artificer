@@ -8,7 +8,9 @@ import {
   buildDraft,
   buildDraftRef,
   buildFinal,
+  buildFinalLora,
   buildFinalRefine,
+  buildFinalRefineLora,
   buildScene,
   buildUpscale,
   loadWorkflow,
@@ -175,6 +177,76 @@ describe('buildFinalRefine', () => {
     expect(g['7'].inputs).toMatchObject({ seed: 3, denoise: 0.62 });
     expect(g['11'].inputs).toMatchObject({ width: 2048, height: 2560 });
     expect(g['12'].inputs.filename_prefix).toBe('portrait-x-3');
+  });
+});
+
+describe('buildFinalLora', () => {
+  it('substitutes the final contract plus lora name and strength, and the sampler reads the lora', () => {
+    const g = buildFinalLora(loadWorkflow(workflowsDir, 'final-lora'), {
+      prompt: 'p',
+      genWidth: 1536,
+      genHeight: 960,
+      outWidth: 2560,
+      outHeight: 1600,
+      seed: 5,
+      filenamePrefix: 'handout-x-5',
+      lora: 'dnd24art.safetensors',
+      loraStrength: 0.8,
+    });
+    expect(g['2'].inputs.text).toBe('p');
+    expect(g['15'].inputs).toMatchObject({
+      lora_name: 'dnd24art.safetensors',
+      strength_model: 0.8,
+    });
+    expect(g['6'].inputs.model).toEqual(['15', 0]);
+    expect(g['11'].inputs.filename_prefix).toBe('handout-x-5');
+  });
+});
+
+describe('buildFinalRefineLora', () => {
+  it('substitutes the refine contract plus lora and the input normalize to gen dims', () => {
+    const g = buildFinalRefineLora(loadWorkflow(workflowsDir, 'final-refine-lora'), {
+      prompt: 'p',
+      uploadedImage: 'scene-render.png',
+      denoise: 0.3,
+      genWidth: 1536,
+      genHeight: 960,
+      outWidth: 2560,
+      outHeight: 1600,
+      seed: 9,
+      filenamePrefix: 'handout-x-9',
+      lora: 'dnd24art.safetensors',
+      loraStrength: 1.0,
+    });
+    expect(g['5'].inputs.image).toBe('scene-render.png');
+    expect(g['13'].inputs).toMatchObject({ width: 1536, height: 960 });
+    expect(g['6'].inputs.pixels).toEqual(['13', 0]);
+    expect(g['15'].inputs).toMatchObject({
+      lora_name: 'dnd24art.safetensors',
+      strength_model: 1.0,
+    });
+    expect(g['7'].inputs).toMatchObject({ seed: 9, denoise: 0.3, model: ['15', 0] });
+    expect(g['12'].inputs.filename_prefix).toBe('handout-x-9');
+  });
+
+  it('fails loudly when the lora node is missing from the pin', () => {
+    const broken = structuredClone(loadWorkflow(workflowsDir, 'final-refine-lora'));
+    delete broken['15'];
+    expect(() =>
+      buildFinalRefineLora(broken, {
+        prompt: 'p',
+        uploadedImage: 'x.png',
+        denoise: 0.3,
+        genWidth: 16,
+        genHeight: 16,
+        outWidth: 32,
+        outHeight: 32,
+        seed: 0,
+        filenamePrefix: 'x',
+        lora: 'x.safetensors',
+        loraStrength: 1,
+      })
+    ).toThrow(/pinned workflow drift: node 15/);
   });
 });
 

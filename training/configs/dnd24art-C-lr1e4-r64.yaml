@@ -18,7 +18,7 @@ config:
         max_step_saves_to_keep: 12
         push_to_hub: false
       datasets:
-        - folder_path: "C:/Users/sippelmc/Desktop/lora-corpus-dnd2024/prepared"
+        - folder_path: "D:/Workbench/LOCAL/LocalAI/lora-corpus-dnd24art/prepared"
           caption_ext: "txt"
           caption_dropout_rate: 0.05
           shuffle_tokens: false

@@ -13,7 +13,15 @@ export interface GraphNode {
 }
 export type Graph = Record<string, GraphNode>;
 
-export type WorkflowName = 'draft' | 'draft-ref' | 'scene' | 'final' | 'final-refine' | 'upscale';
+export type WorkflowName =
+  | 'draft'
+  | 'draft-ref'
+  | 'scene'
+  | 'final'
+  | 'final-lora'
+  | 'final-refine'
+  | 'final-refine-lora'
+  | 'upscale';
 
 export function loadWorkflow(dir: string, name: WorkflowName): Graph {
   const file = path.join(dir, `${name}.json`);
@@ -162,6 +170,24 @@ export function buildFinal(pinned: Graph, p: FinalParams): Graph {
   return g;
 }
 
+export interface LoraParams {
+  /** LoRA filename as ComfyUI sees it (models/loras/), e.g. "dnd24art.safetensors". */
+  lora: string;
+  loraStrength: number;
+}
+
+/**
+ * workflows/final-lora.json — final.json plus a LoraLoaderModelOnly (node 15) feeding the
+ * sampler. Same substitution contract as buildFinal, plus the LoRA name and strength.
+ */
+export function buildFinalLora(pinned: Graph, p: FinalParams & LoraParams): Graph {
+  const g = buildFinal(pinned, p);
+  const lora = node(g, '15', 'LoraLoaderModelOnly');
+  lora.inputs.lora_name = p.lora;
+  lora.inputs.strength_model = p.loraStrength;
+  return g;
+}
+
 export interface RefineParams {
   prompt: string;
   /** ComfyUI-side input name returned by /upload/image — NOT a local path. */
@@ -178,6 +204,37 @@ export function buildFinalRefine(pinned: Graph, p: RefineParams): Graph {
   const g = structuredClone(pinned);
   node(g, '2', 'CLIPTextEncode').inputs.text = p.prompt;
   node(g, '5', 'LoadImage').inputs.image = p.uploadedImage;
+  const sampler = node(g, '7', 'KSampler');
+  sampler.inputs.seed = p.seed;
+  sampler.inputs.denoise = p.denoise;
+  const scale = node(g, '11', 'ImageScale');
+  scale.inputs.width = p.outWidth;
+  scale.inputs.height = p.outHeight;
+  node(g, '12', 'SaveImage').inputs.filename_prefix = p.filenamePrefix;
+  return g;
+}
+
+/**
+ * workflows/final-refine-lora.json — the universal style tail: refine plus a
+ * LoraLoaderModelOnly (node 15) and an input normalize to gen dims (node 13, so a finished
+ * 2560×1600 render — e.g. scene-mode output — re-samples at composition resolution instead of
+ * 4 MP). Style transfers hardest at denoise 0.25–0.4; structure is proven to hold there.
+ */
+export interface RefineLoraParams extends RefineParams, LoraParams {
+  genWidth: number;
+  genHeight: number;
+}
+
+export function buildFinalRefineLora(pinned: Graph, p: RefineLoraParams): Graph {
+  const g = structuredClone(pinned);
+  node(g, '2', 'CLIPTextEncode').inputs.text = p.prompt;
+  node(g, '5', 'LoadImage').inputs.image = p.uploadedImage;
+  const normalize = node(g, '13', 'ImageScale');
+  normalize.inputs.width = p.genWidth;
+  normalize.inputs.height = p.genHeight;
+  const lora = node(g, '15', 'LoraLoaderModelOnly');
+  lora.inputs.lora_name = p.lora;
+  lora.inputs.strength_model = p.loraStrength;
   const sampler = node(g, '7', 'KSampler');
   sampler.inputs.seed = p.seed;
   sampler.inputs.denoise = p.denoise;

@@ -93,3 +93,31 @@ returned `name`.
 | 1 | `image` | uploaded input filename (same upload flow) |
 | 4 | `width`, `height` | target output dims |
 | 5 | `filename_prefix` | per-job id |
+
+## final-lora.json — final.json + house-style LoRA (do not edit final.json)
+
+Identical contract to final.json plus node **15** (`LoraLoaderModelOnly`) feeding the sampler:
+
+| node | field | meaning |
+| --- | --- | --- |
+| 15 | `lora_name`, `strength_model` | LoRA filename (ComfyUI `models/loras/`) and strength |
+| … | | rest identical to final.json (nodes 2/5/6/10/11) |
+
+## final-refine-lora.json — the universal style tail
+
+The refine graph plus the LoRA (node 15) and an **input normalize** (node 13, ImageScale to the
+preset's GEN dims before VAEEncode) so a finished 2560×1600 render — including **scene-mode
+(FLUX.2) output** — re-samples at composition resolution instead of 4 MP. This is how the
+FLUX.1-only house LoRA styles every mode: render anything, then pass it through here at
+**denoise 0.25–0.4** (structure and identity proven to hold at 0.25/0.35, spike 2026-08-27; the
+committed default is 0.35). Also usable as plain draft-refine with a LoRA at denoise 0.55–0.7.
+
+| node | field | meaning |
+| --- | --- | --- |
+| 2 | `text` | prompt |
+| 5 | `image` | uploaded input filename |
+| 13 | `width`, `height` | preset GEN dims (input normalize) |
+| 15 | `lora_name`, `strength_model` | LoRA + strength |
+| 7 | `seed`, `denoise` | 0.25–0.4 = style tail; 0.55–0.7 = draft refine |
+| 11 | `width`, `height` | preset final output dims |
+| 12 | `filename_prefix` | per-job id |

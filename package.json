@@ -1,6 +1,6 @@
 {
   "name": "fvtt-mcp-artificer",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Foundry-specific image-generation MCP server wrapping headless ComfyUI, driven by Claude Code.",
   "private": true,
   "type": "module",

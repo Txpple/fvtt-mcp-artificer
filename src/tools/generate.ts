@@ -10,7 +10,9 @@ import {
   buildDraft,
   buildDraftRef,
   buildFinal,
+  buildFinalLora,
   buildFinalRefine,
+  buildFinalRefineLora,
   buildScene,
   loadWorkflow,
   type Graph,
@@ -60,13 +62,28 @@ const generateImageSchema = z.object({
     ),
   denoise: z
     .number()
-    .min(0.3)
+    .min(0.1)
     .max(0.95)
     .default(0.7)
     .describe(
       'Refine mode only. 0.7 (pinned by test) keeps the scene skeleton in dev style; ' +
-        '~0.55 clones composition but inherits the draft rendering style.'
+        '~0.55 clones composition but inherits the draft rendering style; 0.25-0.4 is the ' +
+        'style-tail band (with lora): re-glazes a finished render without redrawing it.'
     ),
+  lora: z
+    .string()
+    .optional()
+    .describe(
+      'Final/refine modes: house-style LoRA filename in ComfyUI models/loras/, e.g. ' +
+        '"dnd24art.safetensors". With refine at denoise 0.25-0.4 this is the universal style ' +
+        'tail — it styles ANY finished render, including scene-mode (FLUX.2) output.'
+    ),
+  loraStrength: z
+    .number()
+    .min(0)
+    .max(1.5)
+    .default(1.0)
+    .describe('LoRA strength (with lora). Style dial: lower if it overrides prompt content.'),
 });
 
 export interface GenerateDeps {
@@ -98,6 +115,13 @@ export class GenerateImageTool {
 
     if (p.referenceImages && p.mode !== 'draft' && p.mode !== 'scene') {
       throw new Error('referenceImages works in draft and scene modes only');
+    }
+    if (p.lora && p.mode !== 'final' && p.mode !== 'refine') {
+      throw new Error(
+        'lora works in final and refine modes only (FLUX.1-dev — the LoRA cannot load into ' +
+          'the FLUX.2 draft/scene models; style scene output by chaining mode "refine" with ' +
+          'lora at denoise 0.25-0.4 over the finished render)'
+      );
     }
     if (p.mode === 'scene' && !p.referenceImages) {
       throw new Error('scene mode requires referenceImages (the canonical party portraits)');
@@ -137,7 +161,7 @@ export class GenerateImageTool {
         filenamePrefix: prefix,
       });
     } else if (p.mode === 'final') {
-      graph = buildFinal(loadWorkflow(this.deps.workflowsDir, 'final'), {
+      const finalParams = {
         prompt: p.prompt,
         genWidth: preset.gen.width,
         genHeight: preset.gen.height,
@@ -145,13 +169,20 @@ export class GenerateImageTool {
         outHeight: preset.out.height,
         seed,
         filenamePrefix: prefix,
-      });
+      };
+      graph = p.lora
+        ? buildFinalLora(loadWorkflow(this.deps.workflowsDir, 'final-lora'), {
+            ...finalParams,
+            lora: p.lora,
+            loraStrength: p.loraStrength,
+          })
+        : buildFinal(loadWorkflow(this.deps.workflowsDir, 'final'), finalParams);
     } else {
       if (!p.sourceImage) {
         throw new Error('refine mode requires sourceImage (the picked draft PNG path)');
       }
       const uploadedImage = await this.deps.comfy.upload(p.sourceImage);
-      graph = buildFinalRefine(loadWorkflow(this.deps.workflowsDir, 'final-refine'), {
+      const refineParams = {
         prompt: p.prompt,
         uploadedImage,
         denoise: p.denoise,
@@ -159,7 +190,16 @@ export class GenerateImageTool {
         outHeight: preset.out.height,
         seed,
         filenamePrefix: prefix,
-      });
+      };
+      graph = p.lora
+        ? buildFinalRefineLora(loadWorkflow(this.deps.workflowsDir, 'final-refine-lora'), {
+            ...refineParams,
+            lora: p.lora,
+            loraStrength: p.loraStrength,
+            genWidth: preset.gen.width,
+            genHeight: preset.gen.height,
+          })
+        : buildFinalRefine(loadWorkflow(this.deps.workflowsDir, 'final-refine'), refineParams);
     }
 
     const result = await this.deps.comfy.submit(graph);
