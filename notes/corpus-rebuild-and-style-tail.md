@@ -53,11 +53,17 @@ painted than control. Mechanism validated; judgment on style strength waits for 
 Not yet tested: nonhuman faces through the tail (Morgash's tusks — cookbook says dev img2img
 humanizes; test at 0.25 before trusting it on him).
 
+## Status change (owner, later this same day)
+
+**No approved images exist anywhere.** The five staged portraits survive only as
+backup/reference (identity refs for scene conditioning); every staged handout was deleted from
+the campaign repo. Campaign art restarts from zero once the D/E LoRA + style tail are validated.
+
 ## Open items
 
 1. Owner deletes the Desktop working folders (confirmed safe; training copy is canonical).
 2. Tonight: stop ComfyUI, run `training/run-overnight.sh`.
 3. Tomorrow: pick run/checkpoint/strength through the real pipeline (final + tail at several
-   strengths, beside approved staged art) — 20-step preview judging is banned (run-A lesson).
+   strengths, beside the reference portraits) — 20-step preview judging is banned (run-A lesson).
 4. Wire the winner's filename into the presets/skill; owner restarts Claude Code for the schema.
 5. Old corpus keepsakes: runs A/B/C checkpoints stay in `ai-toolkit\output\` until D/E beat them.
