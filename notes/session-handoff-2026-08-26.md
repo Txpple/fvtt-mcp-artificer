@@ -1,5 +1,7 @@
 # Session handoff — 2026-08-26 (build day)
 
+> **SUPERSEDED** by [session-handoff-2026-08-27.md](session-handoff-2026-08-27.md).
+
 For the next context window. Everything below is committed; this note is the orientation page.
 
 ## What exists now
