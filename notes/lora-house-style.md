@@ -157,3 +157,41 @@ over-cartooning LoRA at 1.0 is often correct at 0.6–0.7, so a "too strong" che
 disqualified).
 
 It is fine for this to lose. Reference anchoring (Morgash + Gren as refs 2–3) already works.
+
+## Run B findings (lr 5e-5, rank 32, 5000 steps — 2h57m) — NULL RESULT
+
+Halving the learning rate **fixed essentially nothing**. At 5000 steps the Morgash prompt still
+produced tan skin (not the prompted bone-white), a parchment field with a page border, walrus
+tusks, and a watermark in the lower-left. The paladin prompt was still smooth airbrushed
+digital art with a flat gold disc instead of a sunburst on blue.
+
+**Conclusion: the defects are in the CORPUS, not the hyperparameters.** Two runs three-quarters of
+an order of magnitude apart in learning rate produced the same artifacts, which is what you would
+expect if the model is faithfully reproducing what it was shown.
+
+The three artifacts and their almost certain data causes:
+
+| Artifact | Cause in the corpus |
+| --- | --- |
+| Parchment field + page border | plates on page-white; surviving frames the deframer missed (e.g. `phb-abjurer`, where art breaking out of the frame defeated the gold-rule detection) |
+| **Fake signatures and watermarks** (e.g. "@wrlinse2a.com") | published plates carrying artist marks — **never filtered for at all** |
+| Canon overridden (bone-white ignored) | style layer applying too strongly over prompt content |
+
+### Action: the corpus needs rebuilding, not retuning
+
+Owner is hand-picking ~100 from the full pool, copied to `Z:\Shared\TableArt` (858 journal-art
+plates in `01-journal-art`, plus cutouts/tokens/icons; `_claude-picked-133` holds the current set
+with captions for reference). Rejection criteria, all three learned the hard way:
+
+1. no visible frame or border
+2. **no artist signature or watermark**
+3. no white/parchment page background
+
+Then re-prep (crop to art interior, do **not** composite margins onto white) and re-caption.
+One retrain is only ~2.4 h now that everything is installed.
+
+### Note on sample prompts — my error, not the model's
+
+The five sample prompts omitted gender, violating the cookbook's own first rule ("say the identity
+outright"). The paladin rendered female because the prompt never said male. Do not read that as a
+LoRA defect; the *rendering* faults in that image are real, the gender is not.
