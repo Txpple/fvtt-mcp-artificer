@@ -142,7 +142,7 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   omit appearance. Gren's never mentions his hair; four generations shipped an invented
   "russet-brown greying at the temples" before his token settled it as WHITE hair, a full white
   beard and a green-crystal staff. Tokens live at
-  `%LOCALAPPDATA%\FoundryVTT\Data\worlds\<world>ssets	okens\<name>.png` — the path is in
+  `%LOCALAPPDATA%/FoundryVTT/Data/worlds/<world>/assets/tokens/<name>.png` — the path is in
   the actor's `prototypeToken.texture.src`. Open it before writing a word of prompt.
 - **Negation backfires — describe presence, never absence** (proven twice, 2026-08-28).
   "no large tusks" DRAWS large tusks; "clean-shaven"/"no beard" GROWS a beard. FLUX reads the
