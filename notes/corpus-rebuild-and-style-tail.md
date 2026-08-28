@@ -70,9 +70,7 @@ both configs (commit `a80bd54`).
 What it actually costs — measured, not guessed:
 
 - **Quality: nothing.** fp32 AdamW is the exact version; `adamw8bit` is the quantized
-  approximation of it. Caveat for the comparison: D/E now differ from A–C in optimizer as well
-  as rank, so they are not perfectly controlled against the older runs. Rank conclusions still
-  hold *within* the D-vs-E pair.
+  approximation of it.
 - **VRAM: ~260 MB (rank 8) / ~500 MB (rank 16).** Run C's rank-16 LoRA is 172 MB bf16 ⇒ ~86 M
   trainable params; two fp32 optimizer states = ~690 MB vs ~172 MB at 8-bit (C's `optimizer.pt`
   was 175 MB, which confirms the arithmetic). **The `a80bd54` commit message says "a few MB" —
@@ -82,6 +80,27 @@ What it actually costs — measured, not guessed:
   rebuilt corpus (8% bottom crop, no square plates). Do not attribute it without a test.
 - **Model quantization is unaffected** — `quantize: true` still works, so ai-toolkit routes that
   through torchao/quanto rather than bitsandbytes.
+
+## D/E are not comparable to A–C — read this before judging tomorrow
+
+**The corpus changed, and that is the whole point of these runs.** A–C saw 133 plates spanning
+four art directions; D/E see 46 hand-picked plates, bottom-cropped 8%, re-captioned from the
+images. Content, count, crop and captions all moved. The optimizer swap above is a footnote
+next to that.
+
+What follows:
+
+- **No causal claim about rank may cross the A–C / D–E line.** "Rank 8 beat rank 64" would be
+  unsupported — rank 64 never saw this corpus. The A/B/C finding (rank is the lever, LR is not)
+  was established *on the old corpus* and does not automatically transfer.
+- **D vs E is still a clean experiment.** They share corpus, optimizer, LR, steps and seed and
+  differ only in rank, so that comparison carries its full weight.
+- **Selection ≠ attribution.** Rendering C, D and E side by side to pick the one that ships is
+  legitimate — best art wins, whatever the reason. Explaining *why* the winner won by pointing
+  at any single knob is not, and if C wins it is at least as likely to be the 133-plate corpus
+  as the rank.
+- If a rank conclusion across corpora is ever actually needed, it costs one retrain of the old
+  winning rank on the new corpus — not an argument from the existing checkpoints.
 
 ## Open items
 
