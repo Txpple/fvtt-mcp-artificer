@@ -149,11 +149,16 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   items. Check that session's own loot ledger before putting a weapon in anyone's hand (Morgash
   carried a greatsword long before the Maul of Momentum; Thomas won First Light *in* the cave
   fight, so he cannot be swinging it during that fight).
-- **"Tusk" is a trap word** — klein maps it by size adjective: "small/prominent lower tusks" →
-  thin glossy pins; "large broad tusks" → walrus ivory erupting from the mouth corners; "teeth
-  rising over the upper lip" → a bared-teeth snarl. What works for integrated orc tusks:
-  "mouth closed with lips together, two thick heavy lower tusks with a dull matte ivory finish
-  protruding gently from behind his closed lower lip".
+- **"Tusk" is sized by its adjective, and only small adjectives are safe** (re-validated on dev
+  2026-08-28, 8-phrasing × multi-seed test at final quality). The word "tusk" itself is fine;
+  the size adjective does everything. "large broad" AND "thick heavy" → walrus ivory erupting
+  from the mouth corners (the old prescribed phrase contradicted this rule's own warning and
+  broke every dev-mode orc portrait). Explicit size anchors ("length of a thumb") are ignored.
+  **Negation backfires**: appending "no large tusks" DRAWS large tusks — FLUX reads the tokens,
+  not the "no". What works on dev/final, all seeds tested:
+  "mouth closed with lips together, two small blunt lower tusks that barely clear his lower lip"
+  (klein draft mode: same phrase works; the old "thick heavy" wording is banned everywhere).
+  Omitting tusks entirely → dev renders no tusks at all, so the clause is mandatory for orcs.
 
 ## Step 4 — Run the loop, curate ruthlessly
 
