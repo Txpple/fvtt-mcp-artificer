@@ -99,8 +99,13 @@ What follows:
   legitimate — best art wins, whatever the reason. Explaining *why* the winner won by pointing
   at any single knob is not, and if C wins it is at least as likely to be the 133-plate corpus
   as the rank.
-- If a rank conclusion across corpora is ever actually needed, it costs one retrain of the old
-  winning rank on the new corpus — not an argument from the existing checkpoints.
+- **C vs E isolates the corpus.** Run C trained at **rank 16** (its `-r64` filename is a lie —
+  it was swapped to 16 before the run; the log confirms `"linear": 16`). E is rank 16 on the new
+  corpus, so C-vs-E holds rank fixed and varies only the corpus. That is the cleanest read
+  available on whether the rebuild was worth it, and it is already running — no extra retrain
+  needed.
+- Rename `dnd24art-C-lr1e4-r64.yaml` → `-r16`. The wrong filename is one glance away from
+  producing a false "rank 64 lost" conclusion.
 
 ## Open items
 
