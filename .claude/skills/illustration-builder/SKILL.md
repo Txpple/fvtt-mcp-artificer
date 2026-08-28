@@ -138,6 +138,32 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   order ("bone-white orc with two lower tusks", "tiny white-bearded gnome in green-gold robes"),
   compose around ONE hero moment, and let the rest support. Finish the pick with
   `upscale-image` — the refine path stays off-limits for these (nonhuman faces).
+- **READ THE TOKEN ART, not just the bio** (learned the hard way 2026-08-28): bios routinely
+  omit appearance. Gren's never mentions his hair; four generations shipped an invented
+  "russet-brown greying at the temples" before his token settled it as WHITE hair, a full white
+  beard and a green-crystal staff. Tokens live at
+  `%LOCALAPPDATA%\FoundryVTT\Data\worlds\<world>ssets	okens\<name>.png` — the path is in
+  the actor's `prototypeToken.texture.src`. Open it before writing a word of prompt.
+- **Negation backfires — describe presence, never absence** (proven twice, 2026-08-28).
+  "no large tusks" DRAWS large tusks; "clean-shaven"/"no beard" GROWS a beard. FLUX reads the
+  tokens, not the "no". Say what IS there instead: "his chin and jaw and upper lip are smooth
+  bare hairless skin" finally produced a beardless elf after three failures.
+- **Gendered features must be stacked, not stated once**: a lean build + smooth young face +
+  no facial hair rendered a canon male elf as a woman despite the word "male". Recovery needs
+  redundancy — "a man, a male X, masculine male warrior" plus a strong square jaw, heavy brow,
+  thick neck and wide shoulders.
+- **Directional words about tusks are read as SIZE on dev**: "pointing up", "rising toward his
+  eyes", "standing vertically" all produce walrus ivory, even paired with "no bigger than a
+  thumbnail". There is currently NO known phrasing that yields small tusks angled upward — the
+  working phrase gives small tusks angled low/outward, and that is the trade.
+- **Refine mode REPLACES portrait style, it does not preserve it**: nudging an approved portrait
+  through `refine` at denoise 0.40-0.45 flattened three of four into cel-shaded vector art with
+  hard outlines. To fix a detail while keeping a look, re-run `final` on the SAME SEED with an
+  edited prompt — the seed carries the composition, the LoRA carries the paint.
+- **Species proportion is a losing fight in a waist-up crop**: every push toward gnome
+  proportions produced caricature (rosy comic dwarf), and every retreat produced a short human.
+  Facial structure works better than size words, and a scale cue in frame beats both.
+
 - **Translate canon into the model's vocabulary — never prompt in-world proper nouns or
   mechanics** (owner rule 2026-08-26). The generator has never heard of First Light, the Maul of
   Momentum, the Hollowing, or Spellfire; naming them either does nothing or makes it free-
