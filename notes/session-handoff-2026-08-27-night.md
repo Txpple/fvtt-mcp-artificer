@@ -44,3 +44,21 @@ variable, so conclusions drawn *within* this sweep are valid.
   such configs instead of doing it silently.
 - Junk safe to delete: `output\dnd24art-{D,E}-*.aborted-20*`, and the **void A/B/C runs**
   (bad corpus, owner's verdict) if the disk is wanted back.
+
+## Judged and locked (2026-08-28 morning)
+
+**Winner: run F (rank 32) @ step 2000, strength 1.0** — copied to ComfyUI loras as
+**`dnd24art-house-v1.safetensors`** (stable name; presets/skill reference this, never the run
+filename). Multi-seed confirmation (101/202/303/404, crypt + house-spec portrait, no-LoRA
+control) upheld the owner's r32 pick on every seed. Full findings + the tusk-rule fix are in
+the skill (`.claude/skills/illustration-builder/SKILL.md`, commits 9aff4a3 +this one).
+
+- Step-2000 beats step-4000 in ALL ranks — the final checkpoints wash out (~87 epochs).
+- Watermarks/tusks were base-model defects, seed-clustered; corpus and LoRA exonerated.
+- Tusk rule rewritten: "small blunt" adjectives, never "thick heavy"; negation backfires.
+- Deliberately NOT baked into the tool presets yet ("tools do, skills decide" — the skill
+  carries the default; preset-baking waits until the style tail is validated in step 4).
+
+Remaining: **step 4 — validate the style tail with house-v1** (esp. nonhuman faces / Morgash
+at denoise 0.25), then step 5, make real art. Judging evidence folders on the Desktop
+(`lora-confirm-2026-08-28`, `tusk-fix-2026-08-28`) are disposable once the owner has seen them.

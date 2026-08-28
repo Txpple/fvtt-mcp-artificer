@@ -93,6 +93,22 @@ Match the shelf, not just the subject — all campaign art should feel like one 
   face bleed — provided the prompt pins the subject's species features (`clean-shaven human
   features` kept tusks and beards off Thomas). Beats prompt-only style matching; the house-style
   LoRA remains the durable version once the approved corpus exists.
+- **The house LoRA exists (locked 2026-08-28): `lora: "dnd24art-house-v1.safetensors"`,
+  `loraStrength: 1.0`, trigger word `dnd24art` leading the prompt.** Use it on every `final` and
+  `refine` render unless the owner asks for base-model output. It is rank-32 @ step 2000 on the
+  46-plate rebuilt corpus, picked by multi-seed judging at final quality against a no-LoRA
+  control (crypt + house-spec portrait, seeds 101/202/303/404). What the judging established:
+  - Scenes are the clear win — better light shafts, depth, palette, and *prompt adherence*
+    (control forgot the bones in a crypt prompt; the LoRA painted them).
+  - Portraits: more matte and painterly, pushes skin paler (helps bone-white canon subjects).
+    It does NOT fight the house portrait finish — spec words work identically with it loaded.
+  - Daylight is safe despite the dark corpus (desert probe stayed high-key at every strength).
+  - 0.7 is the fallback strength if the style overrides prompt content on a specific render.
+  - Do NOT use the `-final` (step-4000) checkpoints of any run: over-trained (~87 epochs),
+    they wash out into pale haze. Step-2000 checkpoints beat them across all ranks.
+  - The LoRA is FLUX.1-only: `draft`/`scene` cannot load it. Styling scene output = mode
+    `refine` + this lora + denoise 0.25–0.4 over the finished render (the style tail).
+    NOT yet validated with this LoRA on nonhuman faces — test before trusting it on Morgash.
 
 ## Step 3 — Craft the prompt (the cookbook)
 
