@@ -87,12 +87,28 @@ Match the shelf, not just the subject — all campaign art should feel like one 
   as `worn … with a soft dull sheen` instead. Same trap as neon: shine words compound. Don't
   overshoot into `pale hazy / faded` — that washes the image out; pair the matte-skin words with
   `rich mid-tones and deep shadows` to keep Morgash/Gren-level tonal depth.
-- **Style anchoring with extra references (proven 2026-08-26):** for portraits, pass the two
-  approved style-anchor portraits (Morgash + Gren, the owner-designated reference pair) as refs
-  2–3 alongside the subject's identity ref. FLUX.2 absorbs their palette and brushwork WITHOUT
-  face bleed — provided the prompt pins the subject's species features (`clean-shaven human
-  features` kept tusks and beards off Thomas). Beats prompt-only style matching; the house-style
-  LoRA remains the durable version once the approved corpus exists.
+- **THE CANONICAL PARTY REFERENCE SHELF (approved 2026-08-28)** — these four are the identity
+  anchors for every scene the party appears in, passed to `generate-image` as `referenceImages`
+  in `draft`/`scene` mode. Live in the campaign repo at `fvtt-campaign-greenrest\art\`:
+  | PC | file | binding phrase to use in the prompt |
+  | --- | --- | --- |
+  | Gren | `portrait-gren-greenmantle-611.png` | "a short white-bearded gnome in green and gold robes" |
+  | Morgash | `portrait-morgash-gravemaker-611.png` | "a bone-white orc in battered steel plate" |
+  | Thomas | `portrait-thomas-invictus-611.png` | "a blond human paladin with a golden sunburst on his breastplate" |
+  | Jetten | `portrait-jetten-elisedil-3010.png` | "a tan ash-haired elf archer in a red cloak" |
+  The older `-10534853 / -13527905 / -1504122958 / -934277758` files in the same folder are
+  SUPERSEDED (old models, owner: "none of the pre-existing portraits are canonical"). Do not
+  pass them as references. Salyth is not an active PC.
+- **Identity comes from references, style comes from the LoRA — they are different mechanisms.**
+  The LoRA is NOT trained on the party and never will be; it carries the house look only.
+  Putting a PC in a scene = `scene` mode + that PC's portrait in `referenceImages` (FLUX.2
+  reference conditioning), then the style tail (`refine` + `dnd24art-house-v1` at denoise
+  0.25–0.4) to bring the finished render into house style. No retraining is involved.
+- **Style anchoring with extra references (proven 2026-08-26):** for portraits, pass two of the
+  approved portraits above as refs 2–3 alongside the subject's identity ref. FLUX.2 absorbs
+  their palette and brushwork WITHOUT face bleed — provided the prompt pins the subject's
+  species features (`clean-shaven human features` kept tusks and beards off Thomas). With the
+  house LoRA now shipping, prefer the LoRA for style and reserve extra refs for identity.
 - **The house LoRA exists (locked 2026-08-28): `lora: "dnd24art-house-v1.safetensors"`,
   `loraStrength: 1.0`, trigger word `dnd24art` leading the prompt.** Use it on every `final` and
   `refine` render unless the owner asks for base-model output. It is rank-32 @ step 2000 on the
