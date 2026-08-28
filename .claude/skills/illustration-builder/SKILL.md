@@ -108,7 +108,10 @@ Match the shelf, not just the subject — all campaign art should feel like one 
     they wash out into pale haze. Step-2000 checkpoints beat them across all ranks.
   - The LoRA is FLUX.1-only: `draft`/`scene` cannot load it. Styling scene output = mode
     `refine` + this lora + denoise 0.25–0.4 over the finished render (the style tail).
-    NOT yet validated with this LoRA on nonhuman faces — test before trusting it on Morgash.
+    Validated on nonhuman faces 2026-08-28 (Morgash-type orc, FLUX.2 scene base, d0.25 and
+    d0.35): tusks and bone-white skin survive BOTH levels, and the no-LoRA control humanized
+    the same face — the LoRA is what protects orc anatomy in the tail, so never run the tail
+    lora-less on nonhuman faces.
 
 ## Step 3 — Craft the prompt (the cookbook)
 
@@ -123,9 +126,12 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
 - **Tokens**: end with "waist-up, centered, plain dark background" for cutout-ready framing.
 - Expect **ghost signatures** in dev renders regardless of "no signature" — tolerate at table
   scale, or crop; don't burn batches fighting it.
-- **dev img2img humanizes nonhuman faces**: refine erased an orc's tusks at 0.7 and 0.55 denoise,
-  and at 0.45 it mangled them into downward fangs. Nonhuman faces are klein-only end to end — when
-  a draft nails the canon feature, send it through `upscale-image` as-is.
+- **dev img2img humanizes nonhuman faces — unless the house LoRA is loaded**: lora-less refine
+  erased an orc's tusks at 0.7/0.55 denoise and mangled them at 0.45, and a lora-less style tail
+  at 0.35 still thins them toward human. With `dnd24art-house-v1` + trigger word, the tail at
+  0.25-0.35 PRESERVED tusks and bone-white skin (validated 2026-08-28) — the corpus pulls toward
+  orc anatomy. So: nonhuman faces may take the style tail WITH the house LoRA; full-denoise
+  refine (0.45+) on them remains klein-only territory, and lora-less refine stays banned.
 - **Group scenes: anchor identities with `referenceImages`** (shipped v0.2): pass 1–5 canonical
   portraits from the campaign `art/` shelf to `generate-image` (draft mode) and they feed FLUX.2
   reference conditioning. Bind each reference with an unmistakable prompt phrase in the same
