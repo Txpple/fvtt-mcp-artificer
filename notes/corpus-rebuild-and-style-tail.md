@@ -59,6 +59,30 @@ humanizes; test at 0.25 before trusting it on him).
 backup/reference (identity refs for scene conditioning); every staged handout was deleted from
 the campaign repo. Campaign art restarts from zero once the D/E LoRA + style tail are validated.
 
+## WDAC blocks bitsandbytes (2026-08-27 evening)
+
+Runs D/E both crashed at import: `OSError: [WinError 4551] An Application Control policy has
+blocked this file` on the bitsandbytes native DLL. New since runs A–C, which used the same
+`adamw8bit` setting successfully — this is a **machine policy change, not a code regression**
+(same family as the uv-CPython `_ctypes` block already in memory). Fix: `optimizer: adamw` in
+both configs (commit `a80bd54`).
+
+What it actually costs — measured, not guessed:
+
+- **Quality: nothing.** fp32 AdamW is the exact version; `adamw8bit` is the quantized
+  approximation of it. Caveat for the comparison: D/E now differ from A–C in optimizer as well
+  as rank, so they are not perfectly controlled against the older runs. Rank conclusions still
+  hold *within* the D-vs-E pair.
+- **VRAM: ~260 MB (rank 8) / ~500 MB (rank 16).** Run C's rank-16 LoRA is 172 MB bf16 ⇒ ~86 M
+  trainable params; two fp32 optimizer states = ~690 MB vs ~172 MB at 8-bit (C's `optimizer.pt`
+  was 175 MB, which confirms the arithmetic). **The `a80bd54` commit message says "a few MB" —
+  that is wrong by ~100×.** Irrelevant in practice: run D sits at 24.2 / 32.6 GB.
+- **Speed: run D is ~2.9 s/it vs run C's ~2.1 s/it**, so D+E is ~6 h, not 4.8 h. Cause not
+  isolated — could be fp32 optimizer memory traffic, could be different aspect buckets in the
+  rebuilt corpus (8% bottom crop, no square plates). Do not attribute it without a test.
+- **Model quantization is unaffected** — `quantize: true` still works, so ai-toolkit routes that
+  through torchao/quanto rather than bitsandbytes.
+
 ## Open items
 
 1. Owner deletes the Desktop working folders (confirmed safe; training copy is canonical).
