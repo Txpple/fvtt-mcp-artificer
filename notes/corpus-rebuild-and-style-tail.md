@@ -23,15 +23,36 @@ book covers, a rules diagram, an undersized plate, pastel outliers, and two per-
 - Honest scope: this corpus buys "serious dramatic 2024-sourcebook," not actual Elmore.
   `dragonlance-inn` is the only true warm-oil plate. Real Elmore needs older-book scans.
 
-## Overnight runs D + E (`training/run-overnight.sh`, ~4.8 h)
+## Overnight rank sweep D + E + F (`training/run-overnight.sh`, ~7 h)
 
-| Run | Rank | LR | Steps |
-| --- | --- | --- | --- |
-| D | 8 | 1e-4 | 4000 |
-| E | 16 | 1e-4 | 4000 |
+**Runs A–C are void.** The owner's verdict on the 133-plate corpus is that it was plain bad, so
+those checkpoints are not baselines and not comparison points. Nothing from them transfers —
+including "rank is the lever," which was measured on that corpus. This sweep therefore assumes
+**no rank prior at all** and brackets the space.
 
-Rank is the proven lever (A/B/C evidence); tighter corpus → test lower still. Sample prompts now
-state gender outright (the run-C lesson). **Stop ComfyUI first.**
+| Run | Rank | LR | Steps | Alpha |
+| --- | --- | --- | --- | --- |
+| D | 8 | 1e-4 | 4000 | 8 |
+| E | 16 | 1e-4 | 4000 | 16 |
+| F | 32 | 1e-4 | 4000 | 32 |
+
+Everything except rank is held fixed. `alpha == rank` in all three, so the effective LoRA scale
+is 1.0 regardless of rank and the LR means the same thing across runs — without that, a rank
+comparison silently becomes a rank-and-LR comparison.
+
+- **~2.0 s/it measured** ⇒ ~2h15m per run, ~7 h total. (The "2.9 s/it" in an earlier note was an
+  instantaneous tqdm reading, not the average — there is no speed regression.)
+- **Checkpoints every 500 steps** ⇒ 8 selection points per run, 24 candidate LoRAs overall. This
+  matters more than usual here: 46 images × 4000 steps is **~87 epochs**, against ~30 on the old
+  corpus. The final checkpoint may well be overfit and an earlier one may win, so the sweep is
+  really rank × steps, and the step axis is free.
+- Sample prompts state gender outright (the run-C lesson). Samples are 20-step and **must not be
+  used for judgment** — they exist only to catch a collapsed run early.
+- **Stop ComfyUI first** (~24 GB VRAM).
+- **Delete or rename stale `output/dnd24art-*` dirs before launching.** ai-toolkit resumes from a
+  leftover checkpoint rather than starting fresh; the aborted 20:08 run left a step-500
+  checkpoint + `optimizer.pt` that would have silently made run D a resume. The runner now skips
+  any config whose output dir already exists rather than doing that quietly.
 
 ## The universal style tail (v0.4.0 — shipped, restart pending)
 
@@ -81,37 +102,40 @@ What it actually costs — measured, not guessed:
 - **Model quantization is unaffected** — `quantize: true` still works, so ai-toolkit routes that
   through torchao/quanto rather than bitsandbytes.
 
-## D/E are not comparable to A–C — read this before judging tomorrow
+## How to judge D/E/F tomorrow
 
-**The corpus changed, and that is the whole point of these runs.** A–C saw 133 plates spanning
-four art directions; D/E see 46 hand-picked plates, bottom-cropped 8%, re-captioned from the
-images. Content, count, crop and captions all moved. The optimizer swap above is a footnote
-next to that.
+**The comparison set is D, E, F and base FLUX.1 — nothing else.** A/B/C are out by owner
+verdict, so the question is not "did the rebuild help" (that is settled by decree) but simply
+**which rank, at which checkpoint, makes the best art on this corpus.**
 
-What follows:
-
-- **No causal claim about rank may cross the A–C / D–E line.** "Rank 8 beat rank 64" would be
-  unsupported — rank 64 never saw this corpus. The A/B/C finding (rank is the lever, LR is not)
-  was established *on the old corpus* and does not automatically transfer.
-- **D vs E is still a clean experiment.** They share corpus, optimizer, LR, steps and seed and
-  differ only in rank, so that comparison carries its full weight.
-- **Selection ≠ attribution.** Rendering C, D and E side by side to pick the one that ships is
-  legitimate — best art wins, whatever the reason. Explaining *why* the winner won by pointing
-  at any single knob is not, and if C wins it is at least as likely to be the 133-plate corpus
-  as the rank.
-- **C vs E isolates the corpus.** Run C trained at **rank 16** (its `-r64` filename is a lie —
-  it was swapped to 16 before the run; the log confirms `"linear": 16`). E is rank 16 on the new
-  corpus, so C-vs-E holds rank fixed and varies only the corpus. That is the cleanest read
-  available on whether the rebuild was worth it, and it is already running — no extra retrain
-  needed.
-- Rename `dnd24art-C-lr1e4-r64.yaml` → `-r16`. The wrong filename is one glance away from
-  producing a false "rank 64 lost" conclusion.
+- **D vs E vs F is a clean experiment.** Same corpus, optimizer, LR, steps, seed; rank is the
+  only free variable, and `alpha == rank` keeps the LR comparable. Conclusions about rank drawn
+  *within* this sweep are valid.
+- **Always render a no-LoRA control** in the same batch. The run-A lesson was that half the
+  "LoRA defects" (walrus tusks, watermarks) came from base FLUX and were only visible as such
+  once a control existed.
+- **Judge at final quality through the real pipeline** — `final` + the style tail, at the sizes
+  the table actually uses. 20-step preview judging is banned (run-A lesson) and that includes
+  the training samples.
+- **Sweep the checkpoint axis, not just the final weights.** With ~87 epochs, expect the best
+  result to be somewhere around 1500–2500 steps rather than 4000. Start at 2000 for each rank
+  before assuming the final checkpoint is the candidate.
+- Watch specifically for the corpus's known skews landing in output: **dark** (mean lum 0.31,
+  only ~4 daylight plates — the "ruined open-air temple" sample prompt is the daylight probe)
+  and **magical-glow key light** (~15 plates). If daylight scenes come out murky, that is the
+  corpus, and the fix is backfilling bright plates rather than changing rank.
+- Note for the record: run C's config is misnamed `-r64` but trained at rank 16. Irrelevant now
+  that C is void, but do not let the filename seed a false "rank 64" memory.
 
 ## Open items
 
 1. Owner deletes the Desktop working folders (confirmed safe; training copy is canonical).
-2. Tonight: stop ComfyUI, run `training/run-overnight.sh`.
-3. Tomorrow: pick run/checkpoint/strength through the real pipeline (final + tail at several
-   strengths, beside the reference portraits) — 20-step preview judging is banned (run-A lesson).
+2. ~~Tonight: run the sweep~~ — launched 2026-08-27 ~20:55, D→E→F, ETA ~04:00.
+3. Tomorrow: pick rank/checkpoint/strength through the real pipeline (final + tail at several
+   strengths, beside the reference portraits, with a no-LoRA control) — see the judging section.
 4. Wire the winner's filename into the presets/skill; owner restarts Claude Code for the schema.
-5. Old corpus keepsakes: runs A/B/C checkpoints stay in `ai-toolkit\output\` until D/E beat them.
+5. **A/B/C checkpoints are void** (bad corpus) and can be deleted whenever the owner wants the
+   disk back — they are no longer keepsakes-until-beaten. Left in place for now; deleting is the
+   owner's call.
+6. The aborted-run dirs `output\dnd24art-{D,E}-*.aborted-20*` are junk from tonight's false
+   starts; safe to delete.
