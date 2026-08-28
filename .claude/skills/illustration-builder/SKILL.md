@@ -95,7 +95,7 @@ Match the shelf, not just the subject — all campaign art should feel like one 
   | Gren | `portrait-gren-greenmantle-611.png` | "a short white-bearded gnome in green and gold robes" |
   | Morgash | `portrait-morgash-gravemaker-611.png` | "a bone-white orc in battered steel plate" |
   | Thomas | `portrait-thomas-invictus-611.png` | "a blond human paladin with a golden sunburst on his breastplate" |
-  | Jetten | `portrait-jetten-elisedil-3010.png` | "a tan ash-haired elf archer in a red cloak" |
+  | Jetten | `portrait-jetten-elisedil-3010.png` | "a lean tan ash-haired elf archer in a red cloak, arms covered in grey-brown sleeves and leather bracers" |
   The older `-10534853 / -13527905 / -1504122958 / -934277758` files in the same folder are
   SUPERSEDED (old models, owner: "none of the pre-existing portraits are canonical"). Do not
   pass them as references. Salyth is not an active PC.
@@ -164,6 +164,22 @@ Learned rules, from the M1/M3 proofs ([notes/m3-loop-proof.md](../../../notes/m3
   "no large tusks" DRAWS large tusks; "clean-shaven"/"no beard" GROWS a beard. FLUX reads the
   tokens, not the "no". Say what IS there instead: "his chin and jaw and upper lip are smooth
   bare hairless skin" finally produced a beardless elf after three failures.
+- **The garment NOUN overrides any clause describing it** (proven 2026-08-28, Jetten sleeves).
+  A "jerkin" is by definition sleeveless, and dev painted bare arms through four attempts even
+  with "long leather sleeves covering both arms all the way down to leather bracers" spelled out
+  in the same sentence. Renaming it a "long-sleeved coat" did NOT help — dev defaults the OUTER
+  layer sleeveless whenever a ranger silhouette (quiver + cloak + bow) is in play, and the
+  orphaned sleeve words reattach to the nearest surface (one render turned the tooled leaf
+  pattern into an armband on a bare bicep). What works is **layering**: name a separate
+  long-sleeved shirt worn UNDER the vest — "a dull grey-brown heavy wool shirt with long sleeves
+  underneath a closed brown leather vest" — then armour the covered arms with vambraces. Pick a
+  garment noun that already implies the silhouette you want; adjectives will not overrule it.
+- **"Shoulder caps" / "pauldrons" render as STEEL even in an all-leather prompt** — fine if you
+  want a martial look, wrong for a woodsman. Say "leather vambraces" and leave the shoulders out.
+- **Bulk lives in the body words, not the face words**: dropping "a man's thick neck and wide
+  shoulders" for "a lean slim build with narrow shoulders and slender arms" de-swole a subject
+  without feminizing him, PROVIDED the hard-jaw/heavy-brow face clause stays verbatim. Rewriting
+  the face clause at the same time is what costs the likeness — change one axis per render.
 - **Gendered features must be stacked, not stated once**: a lean build + smooth young face +
   no facial hair rendered a canon male elf as a woman despite the word "male". Recovery needs
   redundancy — "a man, a male X, masculine male warrior" plus a strong square jaw, heavy brow,
