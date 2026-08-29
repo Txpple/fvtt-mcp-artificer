@@ -39,13 +39,21 @@ hair color) and **negation backfires** ("no beard" grows a beard; describe bare 
 
 ## Next up
 
-1. **Scene illustrations** — the point of all this, and where the LoRA is strongest.
-   Party members go in via `scene` mode + their portrait in `referenceImages` (identity), then
-   the style tail (identity ≠ style; the LoRA is never trained on the party). The canonical
-   reference shelf with per-PC binding phrases is in the skill.
+**Queue is clear as of 2026-08-29.** All three items below are closed; nothing is pending in
+this repo. The build is done and the loop works — pick up new work from the owner.
+
+1. ~~Scene illustrations~~ — **in progress in a separate agent session**, not this repo's
+   queue. The mechanics live in the skill: `scene` mode + portraits in `referenceImages` for
+   identity, then the style tail for the house look (identity ≠ style; the LoRA is never
+   trained on the party). Canonical reference shelf with per-PC binding phrases is in the skill.
 2. ~~Jetten's stat block vs. portrait discrepancy~~ — resolved and done (owner, 2026-08-29).
-3. Optional: bake the LoRA into the tool presets. Deliberately NOT done — "tools do, skills
-   decide", and the skill carrying the default needs no code change or restart.
+3. ~~Bake the LoRA into the tool presets~~ — **closed, won't do** (2026-08-29). It looks like
+   it would prevent forgetting the LoRA, but it can't: the real rule is conditional on the
+   subject being nonhuman, which only the caller knows, so a preset default changes the default
+   without adding enforcement. Costs are concrete — a code change plus an owner-performed Claude
+   Code restart, the LoRA name/strength duplicated across `presets.ts` and `SKILL.md` free to
+   drift, and the loss of the no-LoRA control (omitting `lora` is what made the rank-sweep
+   judging possible, and is what a future house-v2 judging would need). Don't re-raise.
 
 ## Sharp edges (unchanged)
 
