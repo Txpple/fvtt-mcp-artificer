@@ -43,8 +43,7 @@ hair color) and **negation backfires** ("no beard" grows a beard; describe bare 
    Party members go in via `scene` mode + their portrait in `referenceImages` (identity), then
    the style tail (identity ≠ style; the LoRA is never trained on the party). The canonical
    reference shelf with per-PC binding phrases is in the skill.
-2. Jetten's stat block says 5'8" / 155 lb but his portrait reads heavier — owner's call whether
-   the numbers or the art move.
+2. ~~Jetten's stat block vs. portrait discrepancy~~ — resolved and done (owner, 2026-08-29).
 3. Optional: bake the LoRA into the tool presets. Deliberately NOT done — "tools do, skills
    decide", and the skill carrying the default needs no code change or restart.
 
