@@ -55,8 +55,11 @@ this repo. The build is done and the loop works — pick up new work from the ow
    drift, and the loss of the no-LoRA control (omitting `lora` is what made the rank-sweep
    judging possible, and is what a future house-v2 judging would need). Don't re-raise.
 
-## Sharp edges (unchanged)
+## Sharp edges
 
+- **ComfyUI is shared across concurrent agent sessions.** A busy queue or VRAM in use is not
+  evidence of a stale job — another session may be rendering. Never restart or kill ComfyUI to
+  "clear" it without asking the owner first; you would destroy someone else's work in progress.
 - **Inline image previews often don't reach the owner** — deliver finals with `SendUserFile`.
   Still Read them yourself first.
 - **Three-pass self-review before showing art is mandatory** and was violated repeatedly this
